@@ -9,19 +9,13 @@ import {
 import { doesNotExist } from "../../apis/user";
 import { useNavigate } from "react-router-dom";
 
+import useFireAuth from "../hooks/useFireAuth";
+
 export default function SignIn() {
-  const [user, setUser] = useState(auth.currentUser);
+  const [user, setUser] = useFireAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-
-  // Subscribe to Firebase auth changes
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, u => {
-      setUser(u);
-    });
-    return unsubscribe;
-  }, []);
 
   const handleSignIn = async () => {
     if (loading) return;
