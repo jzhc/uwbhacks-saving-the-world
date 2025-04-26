@@ -39,7 +39,7 @@ export default function Profile() {
       });
   }, [authInitializing, firebaseUser, navigate]);
 
-  if (authInitializing || loadingProfile) return <p>Loading profile…</p>;
+  if (authInitializing || loadingProfile) return <NavBar />;
   if (error) return <p className="text-red-600">{error}</p>;
 
   const posts = [];
@@ -47,12 +47,12 @@ export default function Profile() {
 
   return (
     <>
-    <NavBar />
-    <ProfileCard
-      user={profile}
-      posts={posts}
-      onWritePost={handleWritePost}
-    />
+        <NavBar />
+        <ProfileCard
+        user={profile}
+        posts={posts}
+        onWritePost={handleWritePost}
+        />
     </>
   );
 }

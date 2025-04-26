@@ -1,7 +1,11 @@
 import InitiativeForm from "../components/InitiativeForm";
 import NavBar from "../components/navbar";
 
+import { useFireAuthWithKick } from "../hooks/useFireAuth";
+
 export default function CreateInitiative() {
+    const [user, initializing] = useFireAuthWithKick()
+
     return (
         <div className="h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
             <NavBar />
