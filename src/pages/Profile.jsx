@@ -1,42 +1,29 @@
 // src/pages/Profile.jsx
 import React, { useState, useEffect } from "react";
-import { auth } from "../../firebaseConfig";
-import { onAuthStateChanged } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
 import ProfileCard from "../components/ProfileCard";
-import { getUser, getUserWithEmail } from "../../apis/user";
+import { getUserWithEmail } from "../../apis/user";
+import useFireAuth from "../hooks/useFireAuth";
 
 export default function Profile() {
-  const [firebaseUser, setFirebaseUser] = useState(auth.currentUser);
-  const [authInitializing, setAuthInitializing] = useState(true);
+  const [firebaseUser, authInitializing] = useFireAuth();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [error, setError] = useState(null);
-  const navigate = useNavigate();
 
-  // Subscribe to Firebase auth changes
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setFirebaseUser(user);
-      setAuthInitializing(false);
-    });
-    return unsubscribe;
-  }, []);
-
-  // Once authenticated, fetch Firestore profile
   useEffect(() => {
     if (authInitializing) return;
-
     if (!firebaseUser) {
       navigate("/signin", { replace: true });
       return;
     }
 
+    setLoadingProfile(true);
     getUserWithEmail(firebaseUser.email)
-      .then((data) => {
-        if (data) {
-          console.log(data);
-          setProfile(data);
+      .then((userData) => {
+        if (userData) {
+          setProfile(userData);
         } else {
           setError("Profile not found.");
         }
@@ -50,20 +37,15 @@ export default function Profile() {
       });
   }, [authInitializing, firebaseUser, navigate]);
 
-  if (authInitializing || loadingProfile) {
-    return <p>Loading profile…</p>;
-  }
-  if (error) {
-    return <p className="text-red-600">{error}</p>;
-  }
+  if (authInitializing || loadingProfile) return <p>Loading profile…</p>;
+  if (error) return <p className="text-red-600">{error}</p>;
 
-  // Now we have a Firestore-backed profile object
   const posts = [];
   const handleWritePost = () => navigate("/new-post");
 
   return (
     <ProfileCard
-      user={profile} // why array adam..
+      user={profile}
       posts={posts}
       onWritePost={handleWritePost}
     />
