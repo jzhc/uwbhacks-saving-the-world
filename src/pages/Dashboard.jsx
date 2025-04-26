@@ -15,7 +15,6 @@ function InitiativeCard({ initiative }) {
   useEffect(() => {
     async function fetchUser() {
       const data = await getUser(initiative.ScrumMasterId)
-      console.log(data[0])
       setUser(data[0])
 
     }
@@ -53,8 +52,6 @@ export default function Dashboard() {
     fetchInitiatives();
   }, []);
   
-  console.log(initiatives)
-
   const filteredInitiatives = initiatives.filter(initiative =>
     initiative.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     initiative.description.toLowerCase().includes(searchTerm.toLowerCase())
