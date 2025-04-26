@@ -3,6 +3,8 @@ import { Search } from 'lucide-react';
 
 import { Link } from "react-router-dom";
 
+import NavBar from "./components/navbar";
+
 const initiatives = [
     { id: 5, title: "Cybersecurity Enhancement Act", description: "Strengthening defenses against cyber threats and data breaches." },
     { id: 6, title: "Renewable Energy Investment Initiative", description: "Subsidies for solar, wind, and other renewable energy sources." },
@@ -30,16 +32,7 @@ function InitiativeCard({ id, title, description }) {
   );
 }
 
-function Button({ onClick, children, variant = 'primary' }) {
-  const base = "px-4 py-2 rounded-lg font-medium transition";
-  const styles = variant === 'primary'
-    ? "bg-[#1873D3] text-white hover:bg-[#020082]"
-    : "bg-[#00004E] text-white hover:bg-[#1873D3]";
 
-  return (
-    <button onClick={onClick} className={`${base} ${styles}`}>{children}</button>
-  );
-}
 
 export default function Dashboard() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -48,21 +41,10 @@ export default function Dashboard() {
     initiative.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleSignIn = () => alert("Sign In clicked");
-  const handleSignOut = () => alert("Sign Out clicked");
-
   return (
     <div className="min-h-screen flex flex-col bg-[#EDEDF9]">
-      {/* Navigation Bar */}
-      <nav className="w-full flex justify-between items-center p-4 bg-[#020082] shadow-md sticky top-0 z-50">
-        <div className="text-2xl font-bold text-white">All Initiatives</div>
-        <div className="flex items-center gap-4">
-          <Button onClick={handleSignIn}>Sign In</Button>
-          <Button onClick={handleSignOut} variant="secondary">Sign Out</Button>
-        </div>
-      </nav>
+        <NavBar />
 
-      {/* Search Filter */}
       <div className="container mx-auto px-8 pt-6">
         <div className="flex items-center max-w-md mx-auto bg-white rounded-full shadow-lg overflow-hidden">
           <div className="px-3 text-[#00004E]">

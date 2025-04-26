@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "./Dashboard";
 import Home from "./pages/Home";
 import InitiativePage from "./pages/InitiativePage";
+import Profile from "./pages/Profile";
 
 export default function App() {
   return (
@@ -14,6 +15,8 @@ export default function App() {
         {/* Main pages */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/profile" element={<Profile />} />
+        
 
         {/* Bills list & detail */}
         <Route path="/initiative" element={<Navigate to="/dashboard" replace />} />
