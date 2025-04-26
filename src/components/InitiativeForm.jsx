@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { postInitiative } from '../../apis/initiative';
 import { useNavigate } from "react-router-dom";
 import { Initiative } from '../../models/initiativesModel';
+import { postTag } from '../../apis/tag';
+import { Tag } from '../../models/tagModel';
 
 /**
  * A modern form for creating a new initiative.
@@ -13,11 +15,22 @@ export default function InitiativeForm() {
   const [description, setDescription] = useState('');
   const [details, setDetails] = useState('');
   const [rationale, setRationale] = useState('');
+  const [tags, setTags] = useState([]);
+  const [newTag, setNewTag] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const navigate = useNavigate()
 
+  const handleAddTag = async (e) => {
+    e.preventDefault();
+    if (newTag.trim() !== "") {
+      const tag = new Tag(null, newTag.trim());
+      const tagUID = await postTag(tag);
+      setTags((prevTags) => [...prevTags, tagUID]); // push into array
+      setNewTag(""); // clear input box
+    }
+  }
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -35,6 +48,7 @@ export default function InitiativeForm() {
           details,
           rationale,
           0,
+          tags,
           date.getFullYear(),
           date.getMonth() + 1,
           date.getDate()
@@ -118,7 +132,19 @@ export default function InitiativeForm() {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
             />
           </div>
-  
+
+          <div>
+            <input
+              type="text"
+              value={newTag}
+              onChange={(e) => setNewTag(e.target.value)}
+              placeholder="Enter a tag"
+            />
+            <button type="button" onClick={handleAddTag}>
+              Add Tag
+            </button>
+          </div>
+
           <button
             type="submit"
             disabled={loading}

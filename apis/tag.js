@@ -23,6 +23,8 @@ export async function postTag(tag) {
         const docRef = await addDoc(tagCollections, tag);
         const tagDoc = doc(db, 'tags', docRef.id);
         updateDoc(tagDoc, { UID: docRef.id });
+        //console.log(docRef.id);
+        return docRef.id;
     } catch(e) {
         throw(e);
     }

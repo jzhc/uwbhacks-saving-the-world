@@ -1,10 +1,8 @@
 export class Tag {
     UID;
-    initiativeUID;
     text;
-    constructor(UID, initiativeUID, text) {
+    constructor(UID, text) {
         this.UID = UID;
-        this.initiativeUID = initiativeUID;
         this.text = text;
     }
 }
