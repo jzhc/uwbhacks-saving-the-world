@@ -4,20 +4,6 @@ import { User } from "../models/userModel"
 import { userConverter } from "../converters/userConverter";
 
 export async function getUser(id) {
-export async function getUserByEmail(email) {
-    try {
-        const userCollections = collection(db, 'users').withConverter(userConverter);
-        const q = query(userCollections, where("email", '==', email));
-        const querySnapshot = await getDocs(q);
-        if (querySnapshot.empty)
-            return true;
-        return false;
-    }
-    catch(e) {
-        throw(e);
-    }
-}
-export async function getUser(id) {
     let users = [];
     try {
         const userCollections = collection(db, 'users').withConverter(userConverter);
