@@ -19,6 +19,21 @@ export async function getInitiative(i) {
         throw(e);
     }
 }
+export async function getInitiative(userUID) {
+    let initiatives = [];
+    try {
+        const initiativeCollections = collection(db, 'initiatives').withConverter(initiativesConverter);
+        const q = query(initiativeCollections, where('ScrumMasterId', '==', userUID));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+            initiatives.push(doc.data());
+        })
+        return initiatives;
+    }
+    catch(e) {
+        throw(e);
+    }
+}
 export async function postInitiative(title, ScrumMasterId, description, year, month, day) {
     try {
         const initiativeCollections = collection(db, 'initiatives').withConverter(initiativeConverter);
