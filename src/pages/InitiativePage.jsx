@@ -1,26 +1,64 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
-import { getUser } from "../../apis/user";
-import { Initiative } from "../../models/initiativesModel";
+// import { serverTimestamp } from "firebase/firestore";
+import { Initiative } from "../../models/initiativesModel";         
+import { getUser , getUserWithEmail} from "../../apis/user";                          
+import { getComment, postComment } from "../../apis/comment";        
+import useFireAuth from "../hooks/useFireAuth";                  
+// If you’d rather auto‑redirect, swap to useFireAuthWithKick
+import { useNavigate } from "react-router-dom";
 
-// Firebase comment API you provided
-import { getComment, postComment } from "../../apis/comment";
+import { Comment } from "../../models/commentModel";
 
-import NavBar from "../components/navbar";
+import NavBar from "../components/navbar";                           // navigation bar
 
-export default function InitiativeDetail() {
-  const { uid } = useParams();
+export default function InitiativeDetail() {  
+  /* ───── params & auth ───── */
+  const { uid } = useParams();                 // route: /initiative/:uid
+  const [currentUser, authInit] = useFireAuth();
+  const navigate = useNavigate();
+  const [profile, setProfile] = useState(null);
+  const [loadingProfile, setLoadingProfile] = useState(false);
+  const [error, setError] = useState(null);
 
-  /* ───────── Initiative & creator ───────── */
-  const [initiative, setInitiative] = useState(null);
+  /* ───── initiative & creator ───── */
+  const [initiative, setIvt] = useState(null);
   const [creator, setCreator] = useState(null);
 
   useEffect(() => {
-    async function fetchInitiative() {
+      if (authInit) return;
+      if (!currentUser) {
+        navigate("/dashboard", { replace: true });
+        return;
+      }
+  
+      // setLoadingProfile(true);
+      // console.log(currentUser.email);
+      getUserWithEmail(currentUser.email)
+        .then((userData) => {
+          if (userData) {
+            setProfile(userData);
+          } else {
+            setError("Profile not found.");
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to load profile:", err);
+          setError("Could not load profile. Please try again.");
+        })
+        .finally(() => {
+          setLoadingProfile(false);
+        });
+    }, [authInit, currentUser, navigate]);
+  
+
+  /* ------------------ load initiative (stub) ------------------ */
+  useEffect(() => {
+    async function fetchIvt() {
       try {
-        // Stub – replace with real API call
+        // TODO: replace stub with real fetch by uid
         const data = new Initiative(
-          5,
+          uid,
           "Cybersecurity Enhancement Act",
           5,
           "Strengthening defenses against cyber threats and data breaches.",
@@ -28,80 +66,76 @@ export default function InitiativeDetail() {
           3,
           14
         );
-        setInitiative(data);
+        setIvt(data);
       } catch (e) {
-        console.error("Failed to load initiative", e);
+        console.error("initiative load failed", e);
       }
     }
-    fetchInitiative();
+    fetchIvt();
   }, [uid]);
 
+  /* ------------------ load creator ------------------ */
   useEffect(() => {
     if (!initiative) return;
-    async function fetchCreator() {
+    (async () => {
       try {
-        const users = await getUser(initiative.ScrumMasterId);
-        setCreator(users[0]);
+        const [user] = await getUser(initiative.ScrumMasterId);
+        setCreator(user);
       } catch (e) {
-        console.error("Failed to load creator", e);
+        console.error("creator load failed", e);
       }
-    }
-    fetchCreator();
+    })();
   }, [initiative]);
 
-  /* ───────── Comments ───────── */
+  /* ───── comments ───── */
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
-  const [loadingComments, setLoadingComments] = useState(true);
+  const [loadingC, setLoadingC] = useState(true);
 
-  // Helper to grab initiative UID/id transparently
-  const initiativeId = initiative?.UID ?? initiative?.id;
+  const initiativeId = initiative?.UID ?? uid; // guarantee not undefined once init loaded
 
-  // Fetch comments whenever initiative changes or after a new post
-  async function refreshComments() {
+  const refreshComments = useCallback(async () => {
     if (!initiativeId) return;
-    setLoadingComments(true);
+    setLoadingC(true);
     try {
       const data = await getComment(initiativeId);
-      // Sort newest first (optional)
       data.sort((a, b) => b.createdAt - a.createdAt);
       setComments(data);
     } catch (e) {
-      console.error("Failed to load comments", e);
+      console.error("comment load failed", e);
     } finally {
-      setLoadingComments(false);
+      setLoadingC(false);
     }
-  }
-
-  useEffect(() => {
-    refreshComments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [initiativeId]);
 
+  useEffect(() => { refreshComments(); }, [refreshComments]);
+
+  /* ------------------ submit comment ------------------ */
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!newComment.trim()) return;
+    if (!currentUser || !newComment.trim()) return;
 
-    // Build the comment object expected by your API
-    const commentObj = {
-      initiativeUID: initiativeId,
-      content: newComment.trim(),
-      authorName: creator
-        ? `${creator.firstName} ${creator.lastName}`
-        : "Anonymous",
-      createdAt: Date.now(),
-    };
+    // Build object exactly as your converter expects (omit undefined!)
+    // const newUser = getUserWithEmail(currentUser.email);
+    const comment = new Comment(
+      null,
+      profile.UID,
+      initiativeId,
+      newComment.trim()
+  )
+
+console.log(comment)
 
     try {
-      await postComment(commentObj);
+      await postComment(comment);
       setNewComment("");
-      await refreshComments();
-    } catch (e) {
-      console.error("Failed to post comment", e);
+      refreshComments();
+    } catch (err) {
+      console.error("post failed", err);
     }
   }
 
-  /* ───────── UI ───────── */
+  /* ------------------ UI ------------------ */
   if (!initiative) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -114,16 +148,16 @@ export default function InitiativeDetail() {
     <div className="min-h-screen bg-gray-50">
       <NavBar />
 
-      {/* HEADER */}
+      {/* header */}
       <header className="bg-blue-900 py-6 shadow-md">
         <div className="container mx-auto px-6">
           <h1 className="text-white text-4xl font-bold">{initiative.title}</h1>
         </div>
       </header>
 
-      {/* MAIN */}
+      {/* main */}
       <main className="container mx-auto px-6 py-10 space-y-8">
-        {/* Initiative Card */}
+        {/* initiative card */}
         <div className="bg-white rounded-2xl shadow-lg p-8">
           <p className="text-gray-600 mb-4">
             Published on {" "}
@@ -131,52 +165,52 @@ export default function InitiativeDetail() {
               {`${initiative.publishMonth}/${initiative.publishDay}/${initiative.publishYear}`}
             </time>
           </p>
-          <p className="text-blue-800 text-lg leading-relaxed">
-            {initiative.description}
-          </p>
+          <p className="text-blue-800 text-lg leading-relaxed">{initiative.description}</p>
         </div>
 
-        {/* Creator Card */}
+        {/* creator */}
         {creator ? (
           <div className="bg-white rounded-2xl shadow-lg p-6 flex items-center space-x-4">
             <div className="flex-1">
               <h2 className="text-xl font-semibold text-blue-900">Created by</h2>
-              <p className="mt-1 text-blue-800">
-                {creator.firstName} {creator.lastName}
-              </p>
+              <p className="mt-1 text-blue-800">{creator.firstName} {creator.lastName}</p>
               <p className="mt-1 italic text-gray-500">{creator.profession}</p>
             </div>
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-gray-400">
-              👤
-            </div>
+            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-gray-400">👤</div>
           </div>
         ) : (
           <div className="text-center text-blue-800 animate-pulse">Loading creator…</div>
         )}
 
-        {/* Comment Section */}
+        {/* comments */}
         <div className="bg-white rounded-2xl shadow-lg p-8 space-y-6">
           <h2 className="text-2xl font-semibold text-blue-900">Comments</h2>
 
-          {/* New comment form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <textarea
-              className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none min-h-[100px]"
-              placeholder="Write your comment…"
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-            />
-            <button
-              type="submit"
-              className="bg-blue-900 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-800 disabled:opacity-50"
-              disabled={!newComment.trim()}
-            >
-              Post Comment
-            </button>
-          </form>
+          {/* new comment */}
+          {!authInit && currentUser ? (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <textarea
+                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none min-h-[100px]"
+                placeholder="Write your comment…"
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+              />
+              <button
+                type="submit"
+                className="bg-blue-900 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-800 disabled:opacity-50"
+                disabled={!newComment.trim()}
+              >
+                Post Comment
+              </button>
+            </form>
+          ) : authInit ? (
+            <p className="text-blue-800 animate-pulse">Checking sign‑in…</p>
+          ) : (
+            <p className="text-gray-500 italic">Sign in to leave a comment.</p>
+          )}
 
-          {/* Comments list */}
-          {loadingComments ? (
+          {/* list */}
+          {loadingC ? (
             <p className="text-blue-800 animate-pulse">Loading comments…</p>
           ) : comments.length === 0 ? (
             <p className="text-gray-400">No comments yet. Be the first to respond!</p>
@@ -185,7 +219,7 @@ export default function InitiativeDetail() {
               {comments.map((c) => (
                 <li key={c.UID} className="border border-gray-200 rounded-lg p-4">
                   <p className="text-sm text-gray-600 mb-2">
-                    <span className="font-semibold text-blue-900">{c.authorName}</span> • {new Date(c.createdAt).toLocaleDateString()}
+                    <span className="font-semibold text-blue-900">{c.authorName ?? "User"}</span> • {new Date(c.createdAt).toLocaleDateString()}
                   </p>
                   <p className="text-gray-800 whitespace-pre-wrap">{c.content}</p>
                 </li>
@@ -197,8 +231,6 @@ export default function InitiativeDetail() {
     </div>
   );
 }
-
-
 
 
 
