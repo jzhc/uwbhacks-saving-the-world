@@ -66,7 +66,7 @@ export default function CreateAccount() {
       <h2 className="text-2xl font-semibold mb-6">Complete Your Account</h2>
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-1 gap-4">
-          {/* UID and Email (read-only) */}
+          {/* UID and Email (read-only)
           <div>
             <label className="block text-sm font-medium mb-1">UID</label>
             <input
@@ -84,7 +84,7 @@ export default function CreateAccount() {
               readOnly
               className="w-full bg-gray-100 border border-gray-300 px-3 py-2 rounded"
             />
-          </div>
+          </div> */}
           {/* Editable fields */}
           <div>
             <label className="block text-sm font-medium mb-1">First Name</label>

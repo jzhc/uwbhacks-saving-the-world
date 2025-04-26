@@ -17,7 +17,7 @@ export default function Profile() {
   useEffect(() => {
     if (authInitializing) return;
     if (!firebaseUser) {
-      navigate("/signin", { replace: true });
+      navigate("/dashboard", { replace: true });
       return;
     }
 

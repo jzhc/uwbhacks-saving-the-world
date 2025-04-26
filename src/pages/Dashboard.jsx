@@ -4,6 +4,8 @@ import { Search, Plus } from "lucide-react";
 
 import NavBar from "../components/navbar";
 import InitiativeCard from "../components/InitiativeCard";
+
+import { getAllInitiative } from "../../apis/initiative";
 import { placeholderInitiatives } from "../assets/constants";
 
 export default function Dashboard() {
@@ -12,9 +14,9 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function fetchInitiatives() {
-      // const data = await getAllInitiative();
-      // setInitiatives(data);
-      setInitiatives(placeholderInitiatives);
+      const data = await getAllInitiative();
+      setInitiatives(data);
+      //setInitiatives(placeholderInitiatives);
     }
     fetchInitiatives();
   }, []);
