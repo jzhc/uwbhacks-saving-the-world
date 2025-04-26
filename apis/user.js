@@ -32,6 +32,27 @@ export async function getUser(id) {
         throw(e);
     }
 }
+
+export async function getUserWithEmail(email) {
+    const userCol = collection(db, "users").withConverter(userConverter);
+    const q = query(userCol, where("email", "==", email));
+    const snap = await getDocs(q);
+  
+    if (snap.empty) {
+      return null;
+    }
+  
+    // grab the first (and presumably only) match
+    const docSnap = snap.docs[0];
+    const user = docSnap.data();
+  
+    // if you also want the Firestore-generated ID on your object:
+    // user.UID = docSnap.id;
+  
+    return user;
+  }
+
+
 export async function postUser(user) {
     try {
         const userCollections = collection(db, 'users').withConverter(userConverter);
