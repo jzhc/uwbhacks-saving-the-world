@@ -153,7 +153,7 @@ export default function CreateAccount() {
         <button
           type="submit"
           disabled={loading}
-          className="mt-6 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+          className="cursor-pointer mt-6 w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
         >
           {loading ? "Creating account…" : "Create Account"}
         </button>

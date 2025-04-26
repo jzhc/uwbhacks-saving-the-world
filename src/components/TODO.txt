@@ -4,6 +4,7 @@
     querySignaturesByBillID
 3. Sync profile page with authentication
 4. Add a detail field to Initiative
-5. 
+5. Make new Initiative page
+6. Redirect to dashboard on signing out
 
 LAST. Block features if not authenticated
