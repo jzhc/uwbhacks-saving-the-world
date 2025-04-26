@@ -1,7 +1,7 @@
 import { Initiative } from '../models/initiativesModel'
 
 export const initiativesConverter = {
-    toFirestore: (intiatives) => {
+    toFirestore: (initiatives) => {
         return {
             UID: null,
             title: initiatives.title,
@@ -14,6 +14,6 @@ export const initiativesConverter = {
     },
     fromFirestore: (snapshot, options) => {
         const data = snapshot.data(options);
-        return new Initiative(data.UID, data.title, data.description, data.ScrumMasterId, data.year, data.month, data.day);
+        return new Initiative(data.UID, data.title, data.ScrumMasterId, data.description, data.year, data.month, data.day);
     }
 }

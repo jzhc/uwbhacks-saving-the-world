@@ -2,6 +2,7 @@ import Button from "./Button"
 
 const handleSignIn = () => alert("Sign In clicked");
 const handleSignOut = () => alert("Sign Out clicked");
+import { postInitiative } from "../../apis/initiative";
 
 export default function NavBar() {
     return (

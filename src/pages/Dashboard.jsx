@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 import NavBar from "../components/navbar";
 import { Search } from 'lucide-react';
+import { getAllInitiative } from "../../apis/initiative";
 
-import { initiatives } from "../assets/constants";
+//import { initiatives } from "../assets/constants";
 
 function InitiativeCard({ initiative }) {
   return (
@@ -19,7 +20,20 @@ function InitiativeCard({ initiative }) {
 }
 
 export default function Dashboard() {
+  const [initiatives, setInitiatives] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+
+  
+  useEffect(() => {
+    async function fetchInitiatives() {
+      const data = await getAllInitiative();
+      setInitiatives(data);
+    }
+    fetchInitiatives();
+  }, []);
+  
+  console.log(initiatives)
+  
   const filteredInitiatives = initiatives.filter(initiative =>
     initiative.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     initiative.description.toLowerCase().includes(searchTerm.toLowerCase())
