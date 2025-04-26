@@ -21,6 +21,8 @@ export async function postSignature(signature) {
     try {
         const userCollections = collection(db, 'signatures').withConverter(signatureConverter);
         const docRef = await addDoc(userCollections, signature);
+        const sigDoc = doc(db, 'signatures', docRef.id);
+        updateDoc(sigDoc, { UID: docRef.id });
     } catch(e) {
         throw(e);
     }
