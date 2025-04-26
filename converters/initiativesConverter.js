@@ -7,9 +7,9 @@ export const initiativesConverter = {
             title: initiatives.title,
             ScrumMasterId: initiatives.ScrumMasterId,
             description: initiatives.description,
-            year: initiatives.year,
-            month: initiatives.month,
-            day: initiatives.day
+            publishYear: initiatives.year,
+            publicMonth: initiatives.month,
+            publishDay: initiatives.day
         };
     },
     fromFirestore: (snapshot, options) => {

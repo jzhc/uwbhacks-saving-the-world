@@ -51,41 +51,13 @@ export async function getAllInitiative() {
 
 export async function postInitiative(initiative) {
     try {
-        // reference to collection
-        const initiativesCollection = collection(db, 'initiatives');
-
-        // create a simple object (not class instance)
-        const initiativeData = {
-            UID: initiative.UID,
-            title: initiative.title,
-            ScrumMasterId: initiative.ScrumMasterId,
-            description: initiative.description,
-            publishYear: initiative.publishYear,
-            publishMonth: initiative.publishMonth,
-            publishDay: initiative.publishDay
-        };
-
-        // add the initiative
-        const docRef = await addDoc(initiativesCollection, initiativeData);
-
-        // after adding, update the UID field
+        const initiativeCollections = collection(db, 'initiatives').withConverter(initiativesConverter);
+        const docRef = await addDoc(initiativeCollections, initiative);
         const initiativeDoc = doc(db, 'initiatives', docRef.id);
-        await updateDoc(initiativeDoc, { UID: docRef.id });
-
-        console.log("✅ Initiative posted successfully with UID:", docRef.id);
-
-    } catch (e) {
-        console.error("❌ Error posting initiative:", e);
-        throw e;
+        updateDoc(initiativeDoc, { UID: docRef.id });
+    } catch(e) {
+        throw(e);
     }
-    // try {
-    //     const initiativeCollections = collection(db, 'initiatives').withConverter(initiativesConverter);
-    //     const docRef = await addDoc(initiativeCollections, new Initiative(null, "title", 3, "description", 2012, 3, 2));
-    //     const initiativeDoc = doc(db, 'initiatives', docRef.id);
-    //     updateDoc(initiativeDoc, { UID: docRef.id });
-    // } catch(e) {
-    //     throw(e);
-    // }
 }
 export async function updateInitiative(id, title, ScrumMasterId, description, year, month, day) {
     try {
