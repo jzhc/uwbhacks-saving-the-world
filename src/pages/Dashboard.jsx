@@ -55,7 +55,7 @@ export default function Dashboard() {
     </div>
 
           <Link
-            to="/initiative/new"
+            to="/create-initiative"
             className="
               inline-flex items-center
               bg-blue-600 hover:bg-blue-700
