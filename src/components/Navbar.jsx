@@ -1,17 +1,12 @@
-import Button from "./Button"
-
-const handleSignIn = () => alert("Sign In clicked");
-const handleSignOut = () => alert("Sign Out clicked");
-import { postInitiative } from "../../apis/initiative";
-import Auth from "../pages/Auth";
 import SignIn from "./SignIn";
+import { Link } from "react-router-dom";
 
 export default function NavBar() {
     return (
-        <nav className="w-full flex justify-between items-center p-4 bg-[#020082] shadow-md sticky top-0 z-50">
-            <div className="text-2xl font-bold text-white">All Initiatives</div>
+        <nav className="w-full flex justify-between items-center py-3 px-6 bg-[#020082] shadow-md sticky top-0 z-50">
+            <Link to={`/dashboard`} className="text-2xl font-bold text-white">BillBoard</Link>
             <div className="flex items-center gap-4">
-                <SignIn></SignIn>
+                <SignIn />
             </div>
         </nav>
     )

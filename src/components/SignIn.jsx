@@ -65,7 +65,7 @@ export default function SignIn() {
       <div>
         <button
           onClick={handleSignOut}
-          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 cursor-pointer"
         >
           Sign Out
         </button>
@@ -79,7 +79,7 @@ export default function SignIn() {
       <button
         onClick={handleSignIn}
         disabled={loading}
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50 cursor-pointer"
       >
         {loading ? "Opening popup…" : "Sign in with Google"}
       </button>

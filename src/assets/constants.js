@@ -1,6 +1,6 @@
 import { Initiative } from "../../models/initiativesModel";
 
-export const initiatives = [
+export const placeholderInitiatives = [
     new Initiative(5, "Cybersecurity Enhancement Act", 5, "Strengthening defenses against cyber threats and data breaches.", 2024, 3, 14),
     new Initiative(6, "Renewable Energy Investment Initiative", 5, "Subsidies for solar, wind, and other renewable energy sources.", 2024, 4, 2),
     new Initiative(7, "Small Business Support Act", 5, "Tax breaks and grants for small and local businesses.", 2024, 5, 11),
