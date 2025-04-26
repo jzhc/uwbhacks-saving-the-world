@@ -1,6 +1,7 @@
 // src/pages/Home.jsx
 import React from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import Auth from './Auth';
+import { AuthProvider, useAuth } from '../contexts/AuthContext';
 import SignIn from '../components/SignIn';
 
 export default function Home() {
@@ -12,7 +13,7 @@ export default function Home() {
       <div style={{ padding: '2rem' }}>
         <h1>Welcome to BillIdeas!</h1>
         <p>Please sign in to submit your ideas:</p>
-        <SignIn />
+        <Auth></Auth>
       </div>
     );
   }

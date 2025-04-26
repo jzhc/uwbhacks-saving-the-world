@@ -7,7 +7,7 @@ import { useAuth } from "../contexts/AuthContext";
 export default function SignIn() {
   const { user } = useAuth();
   const [error, setError] = useState(null);
-
+  
   const handleSignIn = async () => {
     try {
       setError(null);
@@ -32,7 +32,7 @@ export default function SignIn() {
 
   return (
     <div>
-      <button onClick={handleSignIn}>
+      <button onClick={handleSignIn} className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
         Sign in with Google
       </button>
       {error && <p style={{ color: "red" }}>{error}</p>}
