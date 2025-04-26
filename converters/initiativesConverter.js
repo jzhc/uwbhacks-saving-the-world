@@ -12,7 +12,7 @@ export const initiativesConverter = {
             signatureCount: initiatives.signatureCount,
             tagsUID: initiatives.tagsUID,
             publishYear: initiatives.publishYear,
-            publicMonth: initiatives.publishMonth,
+            publishMonth: initiatives.publishMonth,
             publishDay: initiatives.publishDay
         };
     },

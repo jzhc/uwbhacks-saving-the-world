@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { User } from "../../models/userModel";
+import { getUser } from "../../apis/user";
 
 export default function InitiativeCard({ initiative }) {
+    console.log(initiative)
+
   const [user, setUser] = useState(null);
 
   useEffect(() => {
