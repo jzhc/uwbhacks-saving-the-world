@@ -59,7 +59,7 @@ export async function postInitiative(initiative) {
         throw(e);
     }
 }
-export async function updateInitiative(id, title, ScrumMasterId, description, year, month, day) {
+export async function updateInitiative(id, title, ScrumMasterId, description, details, rationale, signatureCount, year, month, day) {
     try {
         const userDoc = doc(db, 'initiatives', id);
         if (title != null) {
@@ -75,6 +75,21 @@ export async function updateInitiative(id, title, ScrumMasterId, description, ye
         if (description != null) {
             updateDoc(userDoc,  {
                 description: description
+            })
+        }
+        if (details != null) {
+            updateDoc(userDoc, {
+                details: details
+            })
+        }
+        if (rationale != null) {
+            updateDoc(userDoc, {
+                rationale: rationale
+            })
+        }
+        if (signatureCount != null) {
+            updateDoc(userDoc,  {
+                signatureCount: signatureCount
             })
         }
         if (year != null) {
