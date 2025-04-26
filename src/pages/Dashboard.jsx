@@ -4,10 +4,24 @@ import { Link } from "react-router-dom";
 import NavBar from "../components/navbar";
 import { Search } from 'lucide-react';
 import { getAllInitiative } from "../../apis/initiative";
+import { getUser } from "../../apis/user";
 
 //import { initiatives } from "../assets/constants";
 
 function InitiativeCard({ initiative }) {
+  const [user, setUser] = useState(null)
+
+
+  useEffect(() => {
+    async function fetchUser() {
+      const data = await getUser(initiative.ScrumMasterId)
+      console.log(data[0])
+      setUser(data[0])
+
+    }
+    fetchUser()
+  }, [])
+
   return (
     <Link 
         to={`/initiative/${initiative.UID}`}
@@ -15,6 +29,14 @@ function InitiativeCard({ initiative }) {
     >
       <h2 className="text-xl font-semibold mb-2 text-[#00004E]">{initiative.title}</h2>
       <p className="text-[#020082] leading-relaxed">{initiative.description}</p>
+
+      {user ? (
+        <div className="mt-4 text-sm text-gray-700">
+          <span className="font-medium">{user.firstName} {user.lastName} — {user.profession}</span>{" "}
+        </div>
+      ) : (
+        <div className="mt-4 text-sm text-gray-500">Loading...</div>
+      )}
     </Link>
   );
 }
@@ -23,7 +45,6 @@ export default function Dashboard() {
   const [initiatives, setInitiatives] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
-  
   useEffect(() => {
     async function fetchInitiatives() {
       const data = await getAllInitiative();
@@ -33,7 +54,7 @@ export default function Dashboard() {
   }, []);
   
   console.log(initiatives)
-  
+
   const filteredInitiatives = initiatives.filter(initiative =>
     initiative.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     initiative.description.toLowerCase().includes(searchTerm.toLowerCase())
