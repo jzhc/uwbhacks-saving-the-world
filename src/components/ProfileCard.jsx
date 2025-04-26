@@ -43,8 +43,6 @@ export default function ProfileCard({ user, posts = [], onWritePost }) {
 
   return (
     <div className="min-h-screen bg-[#EDEDF9] text-gray-900 font-sans flex flex-col">
-      {/* Top Navy Strip */}
-      <div className="w-full h-12 bg-[#00004E]" />
 
       <div className="flex-grow flex justify-center px-4 pb-12">
         <div className="w-full max-w-4xl bg-white rounded-2xl shadow-xl overflow-hidden mt-6">

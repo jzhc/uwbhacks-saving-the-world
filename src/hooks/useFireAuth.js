@@ -9,7 +9,7 @@ export default function useFireAuth() {
         const unsubscribe = onAuthStateChanged(auth, u => {
             setUser(u);
         });
-        return unsubscribe;
+        unsubscribe();
     }, []);
 
     return [user, setUser]

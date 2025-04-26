@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 import ProfileCard from "../components/ProfileCard";
 import { getUser, getUserWithEmail } from "../../apis/user";
 
+import NavBar from "../components/navbar";
+
 export default function Profile() {
   const [firebaseUser, setFirebaseUser] = useState(auth.currentUser);
   const [authInitializing, setAuthInitializing] = useState(true);
@@ -62,10 +64,13 @@ export default function Profile() {
   const handleWritePost = () => navigate("/new-post");
 
   return (
+    <>
+    <NavBar />
     <ProfileCard
       user={profile} // why array adam..
       posts={posts}
       onWritePost={handleWritePost}
     />
+    </>
   );
 }
