@@ -7,20 +7,20 @@ export default function InitiativeCard({ initiative }) {
 
   useEffect(() => {
     async function fetchUser() {
-      // const data = await getUser(initiative.ScrumMasterId);
-      // setUser(data[0]);
-      setUser(
-        new User(
-          5,
-          "Adam",
-          "Tan",
-          "AdamTan@gmail.com",
-          "567050540",
-          "Software Engineer",
-          5,
-          "WASGOOD GANG"
-        )
-      );
+      const data = await getUser(initiative.ScrumMasterId);
+      setUser(data[0]);
+    //   setUser(
+    //     new User(
+    //       5,
+    //       "Adam",
+    //       "Tan",
+    //       "AdamTan@gmail.com",
+    //       "567050540",
+    //       "Software Engineer",
+    //       5,
+    //       "WASGOOD GANG"
+    //     )
+    //   );
     }
     fetchUser();
   }, [initiative.ScrumMasterId]);
