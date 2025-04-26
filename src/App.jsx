@@ -7,6 +7,7 @@ import InitiativePage from "./pages/InitiativePage";
 import Profile from "./pages/Profile";
 import CreateAccount from "./pages/CreateAccount";
 import CreateInitiative from "./pages/CreateInitiative";
+import NotFound from "./pages/NotFound";
 
 export default function App() {
   return (
@@ -18,7 +19,6 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/home" element={<Home />} />
         <Route path="/profile" element={<Profile />} />
-        
 
         {/* Bills list & detail */}
         <Route path="/initiative" element={<Navigate to="/dashboard" replace />} />
@@ -29,7 +29,7 @@ export default function App() {
         <Route path="/create-initiative" element={<CreateInitiative  />} />
 
         {/* Catch-all 404 */}
-        <Route path="*" element={<h2 className="p-6">Page Not Found</h2>} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );
