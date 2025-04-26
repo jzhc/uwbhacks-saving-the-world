@@ -3,12 +3,11 @@ import { db } from "../firebaseConfig"
 import { User } from "../models/userModel"
 import { userConverter } from "../converters/userConverter";
 
-export async function getUser(i) {
-    const id = i;
+export async function getUser(id) {
     let users = [];
     try {
         const userCollections = collection(db, 'users').withConverter(userConverter);
-        const q = query(userCollections, where(documentId(), '==', id));
+        const q = query(userCollections, where("UID", '==', id));
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc) => {
             users.push(doc.data());
