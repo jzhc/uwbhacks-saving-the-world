@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import InitiativePage from "./pages/InitiativePage";
 import Profile from "./pages/Profile";
 import CreateAccount from "./pages/CreateAccount";
+import CreateInitiative from "./pages/CreateInitiative";
 
 export default function App() {
   return (
@@ -23,9 +24,9 @@ export default function App() {
         <Route path="/initiative" element={<Navigate to="/dashboard" replace />} />
         <Route path="/initiative/:initiativeId" element={<InitiativePage />} />
 
-        {/* Other stuff */}
+        {/* Create */}
         <Route path="/create-account" element={<CreateAccount />} />
-
+        <Route path="/create-initiative" element={<CreateInitiative  />} />
 
         {/* Catch-all 404 */}
         <Route path="*" element={<h2 className="p-6">Page Not Found</h2>} />
