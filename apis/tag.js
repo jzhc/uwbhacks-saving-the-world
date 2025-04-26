@@ -17,6 +17,21 @@ export async function getTag(initiativeId) {
         throw(e);
     }
 }
+export async function getAllTag() {
+    let tags = [];
+    try {
+        const commentCollections = collection(db, 'tags').withConverter(tagConverter);
+        const q = query(commentCollections);
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((doc) => {
+            tags.push(doc.data());
+        })
+        return tags;
+    }
+    catch(e) {
+        throw(e);
+    }
+}
 export async function postTag(tag) {
     try {
         const tagCollections = collection(db, 'tags').withConverter(tagConverter);
