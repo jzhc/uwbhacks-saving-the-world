@@ -4,25 +4,25 @@ import { useParams } from 'react-router-dom';
 import Initiative from '../components/Initiative';
 
 export default function InitiativePage() {
-  const { billId } = useParams();
-  const [bill, setBill] = useState(null);
+  const { initiativeId } = useParams();
+  const [initiative, setInitiative] = useState(null);
 
   useEffect(() => {
     // TODO: fetch the single bill from Firebase by ID
     // e.g. getDoc(doc(db, 'bills', billId)).then(docSnap => ...)
     // For now, fake it:
-    setBill({
-      id: billId,
-      title: `Loaded bill ${billId}`,
+    setInitiative({
+      id: initiativeId,
+      title: `Loaded bill ${initiativeId}`,
       description: 'Full text and details of this bill will appear here…'
     });
-  }, [billId]);
+  }, [initiativeId]);
 
-  if (!bill) return <div className="p-6">Loading…</div>;
+  if (!initiative) return <div className="p-6">Loading…</div>;
 
   return (
     <div className="p-6">
-      <Initiative {...bill} />
+      <Initiative {...initiative} />
     </div>
   );
 }

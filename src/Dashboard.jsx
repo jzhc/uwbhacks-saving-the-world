@@ -1,57 +1,98 @@
-import React from "react";
+import React, { useState } from "react";
+import { Search } from 'lucide-react';
 
-const bills = [
-  { id: 1, title: "Education Reform Act", description: "A bill to improve public school funding." },
-  { id: 2, title: "Healthcare Access Bill", description: "Expanding access to healthcare in rural areas." },
-  { id: 3, title: "Environmental Protection Law", description: "Measures to reduce carbon emissions by 2030." },
-  { id: 4, title: "Affordable Housing Initiative", description: "Grants and incentives for affordable housing projects." },
-];
+import { Link } from "react-router-dom";
 
-function BillCard({ title, description }) {
+const initiatives = [
+    { id: 5, title: "Cybersecurity Enhancement Act", description: "Strengthening defenses against cyber threats and data breaches." },
+    { id: 6, title: "Renewable Energy Investment Initiative", description: "Subsidies for solar, wind, and other renewable energy sources." },
+    { id: 7, title: "Small Business Support Act", description: "Tax breaks and grants for small and local businesses." },
+    { id: 8, title: "Veterans' Healthcare Improvement Act", description: "Improving medical services for military veterans." },
+    { id: 9, title: "Student Loan Relief Initiative", description: "Reducing interest rates and providing forgiveness options." },
+    { id: 10, title: "Water Conservation Initiative", description: "Programs to promote sustainable water use and infrastructure repair." },
+    { id: 11, title: "Workforce Development Act", description: "Funding job training programs and apprenticeship opportunities." },
+    { id: 12, title: "Mental Health Access Initiative", description: "Expanding access to affordable mental health care services." },
+    { id: 13, title: "Transportation Modernization Law", description: "Investments in public transit and eco-friendly transportation." },
+    { id: 14, title: "Internet Accessibility Act", description: "Ensuring affordable, high-speed internet for rural communities." },
+    { id: 15, title: "Climate Resilience Act", description: "Funding for communities to adapt to climate change impacts." },
+    { id: 16, title: "Criminal Justice Reform Initiative", description: "Measures to promote fair sentencing and reduce incarceration rates." },
+]
+
+function InitiativeCard({ id, title, description }) {
   return (
-    <div className="border rounded-2xl p-6 shadow-md hover:shadow-lg transition">
-      <h2 className="text-xl font-semibold mb-2">{title}</h2>
-      <p className="text-gray-600">{description}</p>
-    </div>
+    <Link 
+        to={`/initiative/${id}`}
+        className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-300"
+    >
+      <h2 className="text-xl font-semibold mb-2 text-[#00004E]">{title}</h2>
+      <p className="text-[#020082] leading-relaxed">{description}</p>
+    </Link>
   );
 }
 
-function Button({ onClick, children }) {
+function Button({ onClick, children, variant = 'primary' }) {
+  const base = "px-4 py-2 rounded-lg font-medium transition";
+  const styles = variant === 'primary'
+    ? "bg-[#1873D3] text-white hover:bg-[#020082]"
+    : "bg-[#00004E] text-white hover:bg-[#1873D3]";
+
   return (
-    <button
-      onClick={onClick}
-      className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
-    >
-      {children}
-    </button>
+    <button onClick={onClick} className={`${base} ${styles}`}>{children}</button>
   );
 }
 
 export default function Dashboard() {
-  const handleSignIn = () => {
-    alert("Sign In clicked");
-  };
+  const [searchTerm, setSearchTerm] = useState('');
+  const filteredInitiatives = initiatives.filter(initiative =>
+    initiative.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    initiative.description.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
-  const handleSignOut = () => {
-    alert("Sign Out clicked");
-  };
+  const handleSignIn = () => alert("Sign In clicked");
+  const handleSignOut = () => alert("Sign Out clicked");
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-[#EDEDF9]">
       {/* Navigation Bar */}
-      <nav className="w-full flex justify-between items-center p-4 shadow-md bg-white sticky top-0 z-50">
-        <div className="text-2xl font-bold">All Bills</div>
-        <div className="flex gap-4">
+      <nav className="w-full flex justify-between items-center p-4 bg-[#020082] shadow-md sticky top-0 z-50">
+        <div className="text-2xl font-bold text-white">All Initiatives</div>
+        <div className="flex items-center gap-4">
           <Button onClick={handleSignIn}>Sign In</Button>
-          <Button onClick={handleSignOut}>Sign Out</Button>
+          <Button onClick={handleSignOut} variant="secondary">Sign Out</Button>
         </div>
       </nav>
 
+      {/* Search Filter */}
+      <div className="container mx-auto px-8 pt-6">
+        <div className="flex items-center max-w-md mx-auto bg-white rounded-full shadow-lg overflow-hidden">
+          <div className="px-3 text-[#00004E]">
+            <Search size={20} />
+          </div>
+          <input
+            type="text"
+            placeholder="Search Initiatives..."
+            className="w-full px-4 py-2 text-[#00004E] focus:outline-none"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+      </div>
+
       {/* Main Content */}
-      <main className="flex-grow p-8 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {bills.map((bill) => (
-          <BillCard key={bill.id} title={bill.title} description={bill.description} />
-        ))}
+      <main className="flex-grow container mx-auto px-8 py-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
+          {filteredInitiatives.map((initiative) => (
+            <InitiativeCard
+                key={initiative.id}
+                id={initiative.id}
+                title={initiative.title}
+                description={initiative.description}
+            />
+          ))}
+        </div>
+        {filteredInitiatives.length === 0 && (
+          <p className="text-center text-[#00004E] mt-12">No Initiatives match your search.</p>
+        )}
       </main>
     </div>
   );

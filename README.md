@@ -18,3 +18,4 @@ npm install firebase
 npm install react-firebase-hooks
 npm install react-router-dom
 npm install tailwindcss @tailwindcss/vite
+npm install lucide-react
