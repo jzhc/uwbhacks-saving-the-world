@@ -18,13 +18,10 @@ export async function getUser(id) {
         throw(e);
     }
 }
-export async function postUser(f, l) {
-    const firstName = f;
-    const lastName = l;
-    console.log(firstName);
+export async function postUser(user) {
     try {
         const userCollections = collection(db, 'users').withConverter(userConverter);
-        const docRef = await addDoc(userCollections, new User(null, firstName, lastName));
+        const docRef = await addDoc(userCollections, user);
         const userDoc = doc(db, 'users', docRef.id);
         updateDoc(userDoc, { UID: docRef.id });
     } catch(e) {
