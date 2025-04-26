@@ -1,19 +1,19 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
-import NavBar from "./components/navbar";
+import NavBar from "../components/navbar";
 import { Search } from 'lucide-react';
 
-import { initiatives } from "./assets/constants";
+import { initiatives } from "../assets/constants";
 
-function InitiativeCard({ id, title, description }) {
+function InitiativeCard({ initiative }) {
   return (
     <Link 
-        to={`/initiative/${id}`}
+        to={`/initiative/${initiative.UID}`}
         className="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transform hover:scale-105 transition duration-300"
     >
-      <h2 className="text-xl font-semibold mb-2 text-[#00004E]">{title}</h2>
-      <p className="text-[#020082] leading-relaxed">{description}</p>
+      <h2 className="text-xl font-semibold mb-2 text-[#00004E]">{initiative.title}</h2>
+      <p className="text-[#020082] leading-relaxed">{initiative.description}</p>
     </Link>
   );
 }
@@ -49,10 +49,8 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {filteredInitiatives.map((initiative) => (
             <InitiativeCard
-                key={initiative.id}
-                id={initiative.id}
-                title={initiative.title}
-                description={initiative.description}
+                key={initiative.UID}
+                initiative={initiative}
             />
           ))}
         </div>

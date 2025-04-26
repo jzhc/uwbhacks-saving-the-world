@@ -1,7 +1,7 @@
 // src/App.jsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import Dashboard from "./Dashboard";
+import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
 import InitiativePage from "./pages/InitiativePage";
 import Profile from "./pages/Profile";

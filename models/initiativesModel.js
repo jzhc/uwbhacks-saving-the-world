@@ -1,4 +1,4 @@
-export class Intiative {
+export class Initiative {
     UID;
     title;
     ScrumMasterId;
