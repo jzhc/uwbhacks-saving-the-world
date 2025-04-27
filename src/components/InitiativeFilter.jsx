@@ -74,7 +74,7 @@ export default function InitiativeFilter({ onChange }) {
       </button>
 
       {open && (
-        <div className="absolute mt-2 right-0 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
+        <div className="absolute mt-2 right-0 w-64 min-w-[40rem] bg-white border border-gray-200 rounded-lg shadow-lg z-20">
           <div className="p-2 flex space-x-2">
             {/* Tags Column */}
             <ul className="w-1/2 max-h-60 overflow-auto">
