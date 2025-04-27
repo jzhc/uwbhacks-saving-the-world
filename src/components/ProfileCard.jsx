@@ -1,5 +1,5 @@
 // src/components/ProfileCard.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   User2,
   MapPin,
@@ -10,19 +10,50 @@ import {
 } from "lucide-react";
 import { auth } from "../../firebaseConfig";
 import { signOut } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import useFireAuth from "../hooks/useFireAuth";
+import { getUserWithEmail } from "../../apis/user";
+
 
 /**
  * Profile component
  *
  * Props
  * ──────────────────────────────────────────
- * {@link user} – user object (null/undefined ➜ not‑logged‑in view)
+ * {@link user} – Firestore-backed profile (null/undefined ➜ not-logged-in view)
  * {@link posts} – array of post objects { id, title, excerpt }
  */
 export default function ProfileCard({ user, posts = [] }) {
-  const isLoggedIn = user && Object.keys(user).length > 0;
+  const { uid: routeUid } = useParams();
   const navigate = useNavigate();
+
+  const [firebaseUser, authInit] = useFireAuth();
+  const [profile, setProfile] = useState(null);
+  const [canSignOut, setCanSignOut] = useState(false);
+
+  // Load profile: if no user passed, fetch by email
+  useEffect(() => {
+    if (authInit) return;
+    // if (user) {
+    //   setProfile(user);
+    //   return;
+    // }
+    if (firebaseUser) {
+      getUserWithEmail(firebaseUser.email)
+        .then((me) => {
+          setProfile(me);
+        })
+        .catch(console.error);
+    }
+  }, [authInit, firebaseUser]);
+
+  // Once profile is loaded, decide if sign-out should show
+  useEffect(() => {
+    if (profile && routeUid) {
+      setCanSignOut(profile.UID === routeUid);
+    }
+  }, [profile, routeUid]);
+
 
   const handleSignOut = async () => {
     try {
@@ -33,8 +64,9 @@ export default function ProfileCard({ user, posts = [] }) {
     }
   };
 
-  /* ----------------------- NOT‑LOGGED‑IN ----------------------- */
-  if (!isLoggedIn) {
+
+  // Not signed in
+  if (!user) {
     return (
       <div className="min-h-screen bg-[#EDEDF9] text-gray-900 font-sans flex items-center justify-center px-4">
         <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl p-10 text-center space-y-6">
@@ -48,12 +80,11 @@ export default function ProfileCard({ user, posts = [] }) {
     );
   }
 
-  /* ------------------------- LOGGED‑IN ------------------------- */
+  // Logged in
   const fullName = `${user.firstName ?? "First"} ${user.lastName ?? "Last"}`;
 
   return (
     <div className="min-h-screen bg-[#EDEDF9] text-gray-900 font-sans flex flex-col items-center px-4 py-8">
-      {/* Card */}
       <div className="w-full max-w-4xl bg-white rounded-2xl shadow-xl overflow-hidden mt-6 flex flex-col h-full">
         {/* Scrollable content */}
         <div className="flex-grow overflow-auto">
@@ -91,51 +122,65 @@ export default function ProfileCard({ user, posts = [] }) {
             {/* Posts */}
             <div className="mt-6 px-8 py-6 border-t border-gray-200 space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-[#020082]">Recent Posts</h2>
-                <button
-                  onClick={() => navigate("/create-initiative")}
-                  className="cursor-pointer flex items-center gap-2 text-sm text-[#1873D3] hover:underline"
-                >
-                  <PencilLine size={16} /> Create Initiative
-                </button>
+                <h2 className="text-xl font-semibold text-[#020082]">{user.firstName}'s Initiatives</h2>
               </div>
 
               {posts.length === 0 ? (
                 <div className="bg-[#F5F7FB] border border-gray-200 p-4 rounded-lg text-sm text-gray-700 flex justify-between items-center">
                   <div>
-                    <h3 className="font-medium text-base">No posts yet</h3>
+                    <h3 className="font-medium text-base">No Initiatives yet</h3>
                     <p className="text-gray-500">Once you create initiatives, they’ll appear here.</p>
                   </div>
                   <MessageSquare size={20} className="text-gray-400" />
                 </div>
               ) : (
-                <div className="space-y-3">
-                  {posts.map((post) => (
+              <div className="space-y-3">
+                  {posts.map(p => (
                     <div
-                      key={post.id}
-                      className="bg-[#F5F7FB] border border-gray-200 p-4 rounded-lg text-sm text-gray-700 hover:bg-[#EEF1F8] transition"
-                    >
-                      <h3 className="font-medium text-base text-[#020082]">{post.title}</h3>
-                      {post.excerpt && <p className="text-gray-600 mt-1 line-clamp-2">{post.excerpt}</p>}
+                    key={p.id}
+                    onClick={() => navigate(`/initiative/${p.id}`)}   // row is clickable
+                    className="bg-[#F5F7FB] border border-gray-200 p-4 rounded-lg
+                              hover:bg-[#EEF1F8] transition flex items-start justify-between
+                              cursor-pointer"
+                  >
+                    {/* left: title + description */}
+                    <div className="pr-4">
+                      <h3 className="text-base font-medium text-[#020082]">{p.title}</h3>
+                      {p.desc && (
+                        <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                          {p.desc}
+                        </p>
+                      )}
                     </div>
+                  
+                    {/* right: date */}
+                    <time
+                      className="text-sm text-gray-500 whitespace-nowrap self-start pt-1"
+                      dateTime={p.date.replace(/\//g, "-")}
+                    >
+                      {p.date}
+                    </time>
+                  </div>
+                  
                   ))}
                 </div>
               )}
             </div>
           </div>
-        </div>
 
         {/* Footer with Sign Out at bottom right */}
-        <div className="px-8 py-4 border-t border-gray-200 flex justify-end">
-          <button
-            onClick={handleSignOut}
-            className="cursor-pointer text-sm text-red-600 hover:underline"
-          >
-            Sign Out
-          </button>
-        </div>
+        {canSignOut && (
+          <div className="px-8 py-4 border-t border-gray-200 flex justify-end">
+            <button
+              onClick={handleSignOut}
+              className="cursor-pointer text-sm text-red-600 hover:underline"
+            >
+              Sign Out
+            </button>
+          </div>
+        )}
       </div>
+    </div>
     </div>
   );
 }
-  
