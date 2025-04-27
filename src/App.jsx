@@ -8,6 +8,7 @@ import Profile from "./pages/Profile";
 import CreateAccount from "./pages/CreateAccount";
 import CreateInitiative from "./pages/CreateInitiative";
 import NotFound from "./pages/NotFound";
+import HANNI from "./pages/queens";
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/home" element={<Home />} />
         <Route path="/profile" element={<Profile />} />
+        <Route path="/idols" element={<HANNI />} />
 
         {/* Bills list & detail */}
         <Route path="/initiative" element={<Navigate to="/dashboard" replace />} />
