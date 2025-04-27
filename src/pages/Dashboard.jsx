@@ -21,7 +21,6 @@ export default function Dashboard() {
   const [user, initializing] = useFireAuth()
 
   const handleTagChange = (selectedTags) => {
-    console.log(selectedTags)
       if (selectedTags.length != 0) {
         const filtered = initial.filter((initiative) => 
           selectedTags.every((tag) => 
@@ -49,7 +48,8 @@ export default function Dashboard() {
             );
           }
     
-          return { data: d, user: user[0], tags: tags[0] };
+          console.log(tags)
+          return { data: d, user: user[0], tags: tags };
         })
       );
 

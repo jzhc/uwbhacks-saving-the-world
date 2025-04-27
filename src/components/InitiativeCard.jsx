@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 
 
 export default function InitiativeCard({ initiative, user, tags }) {
+
+  console.log(tags)
     return (
     <Link
       to={`/initiative/${initiative.UID}`}
@@ -39,9 +41,9 @@ export default function InitiativeCard({ initiative, user, tags }) {
     {/* TAGS */}
     {tags && (tags.length > 0) && (
       <div className="mt-4 flex flex-wrap gap-2">
-        {tags.map((tag) => (
+        {tags.map((t) => (
           <span
-            key={tag.UID}
+            key={t[0].UID}
             className="
               text-xs font-medium
               bg-blue-100 text-blue-800
@@ -50,7 +52,7 @@ export default function InitiativeCard({ initiative, user, tags }) {
               truncate
             "
           >
-            {tag.text}
+            {t[0].text}
           </span>
         ))}
       </div>
