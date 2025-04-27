@@ -1,5 +1,5 @@
 // src/components/ProfileCard.jsx
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {
   User2,
   MapPin,
@@ -10,19 +10,50 @@ import {
 } from "lucide-react";
 import { auth } from "../../firebaseConfig";
 import { signOut } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import useFireAuth from "../hooks/useFireAuth";
+import { getUserWithEmail } from "../../apis/user";
+
 
 /**
  * Profile component
  *
  * Props
  * ──────────────────────────────────────────
- * {@link user} – user object (null/undefined ➜ not‑logged‑in view)
+ * {@link user} – Firestore-backed profile (null/undefined ➜ not-logged-in view)
  * {@link posts} – array of post objects { id, title, excerpt }
  */
 export default function ProfileCard({ user, posts = [] }) {
-  const isLoggedIn = user && Object.keys(user).length > 0;
+  const { uid: routeUid } = useParams();
   const navigate = useNavigate();
+
+  const [firebaseUser, authInit] = useFireAuth();
+  const [profile, setProfile] = useState(null);
+  const [canSignOut, setCanSignOut] = useState(false);
+
+  // Load profile: if no user passed, fetch by email
+  useEffect(() => {
+    if (authInit) return;
+    // if (user) {
+    //   setProfile(user);
+    //   return;
+    // }
+    if (firebaseUser) {
+      getUserWithEmail(firebaseUser.email)
+        .then((me) => {
+          setProfile(me);
+        })
+        .catch(console.error);
+    }
+  }, [authInit, firebaseUser]);
+
+  // Once profile is loaded, decide if sign-out should show
+  useEffect(() => {
+    if (profile && routeUid) {
+      setCanSignOut(profile.UID === routeUid);
+    }
+  }, [profile, routeUid]);
+
 
   const handleSignOut = async () => {
     try {
@@ -33,8 +64,9 @@ export default function ProfileCard({ user, posts = [] }) {
     }
   };
 
-  /* ----------------------- NOT‑LOGGED‑IN ----------------------- */
-  if (!isLoggedIn) {
+
+  // Not signed in
+  if (!user) {
     return (
       <div className="min-h-screen bg-[#EDEDF9] text-gray-900 font-sans flex items-center justify-center px-4">
         <div className="w-full max-w-lg bg-white rounded-2xl shadow-xl p-10 text-center space-y-6">
@@ -48,12 +80,11 @@ export default function ProfileCard({ user, posts = [] }) {
     );
   }
 
-  /* ------------------------- LOGGED‑IN ------------------------- */
+  // Logged in
   const fullName = `${user.firstName ?? "First"} ${user.lastName ?? "Last"}`;
 
   return (
     <div className="min-h-screen bg-[#EDEDF9] text-gray-900 font-sans flex flex-col items-center px-4 py-8">
-      {/* Card */}
       <div className="w-full max-w-4xl bg-white rounded-2xl shadow-xl overflow-hidden mt-6 flex flex-col h-full">
         {/* Scrollable content */}
         <div className="flex-grow overflow-auto">
@@ -142,19 +173,20 @@ export default function ProfileCard({ user, posts = [] }) {
               )}
             </div>
           </div>
-        </div>
 
         {/* Footer with Sign Out at bottom right */}
-        <div className="px-8 py-4 border-t border-gray-200 flex justify-end">
-          <button
-            onClick={handleSignOut}
-            className="cursor-pointer text-sm text-red-600 hover:underline"
-          >
-            Sign Out
-          </button>
-        </div>
+        {canSignOut && (
+          <div className="px-8 py-4 border-t border-gray-200 flex justify-end">
+            <button
+              onClick={handleSignOut}
+              className="cursor-pointer text-sm text-red-600 hover:underline"
+            >
+              Sign Out
+            </button>
+          </div>
+        )}
       </div>
+    </div>
     </div>
   );
 }
-  
