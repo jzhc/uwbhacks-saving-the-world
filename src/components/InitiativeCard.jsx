@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { getUser } from "../../apis/user";
 
 export default function InitiativeCard({ initiative }) {
-    console.log(initiative)
+    // console.log(initiative)
 
   const [user, setUser] = useState(null);
 

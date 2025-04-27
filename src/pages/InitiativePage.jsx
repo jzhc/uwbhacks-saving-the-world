@@ -1,16 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
-// import { serverTimestamp } from "firebase/firestore";
 import { Initiative } from "../../models/initiativesModel";         
 import { getUser , getUserWithEmail} from "../../apis/user";                          
 import { getComment, postComment } from "../../apis/comment";        
 import useFireAuth from "../hooks/useFireAuth";                  
 // If you’d rather auto‑redirect, swap to useFireAuthWithKick
 import { useNavigate } from "react-router-dom";
-
 import { Comment } from "../../models/commentModel";
 
 import NavBar from "../components/navbar";                           // navigation bar
+import { getInitiative } from "../../apis/initiative";
 
 export default function InitiativeDetail() {  
   /* ───── params & auth ───── */
@@ -21,8 +20,9 @@ export default function InitiativeDetail() {
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [error, setError] = useState(null);
 
+
   /* ───── initiative & creator ───── */
-  const [initiative, setIvt] = useState(null);
+  const [initiative, setInitiative] = useState(null);
   const [creator, setCreator] = useState(null);
 
   useEffect(() => {
@@ -57,16 +57,8 @@ export default function InitiativeDetail() {
     async function fetchIvt() {
       try {
         // TODO: replace stub with real fetch by uid
-        const data = new Initiative(
-          uid,
-          "Cybersecurity Enhancement Act",
-          5,
-          "Strengthening defenses against cyber threats and data breaches.",
-          2024,
-          3,
-          14
-        );
-        setIvt(data);
+        const data = await getInitiative(uid)
+        setInitiative(data[0]);
       } catch (e) {
         console.error("initiative load failed", e);
       }
@@ -119,8 +111,8 @@ export default function InitiativeDetail() {
     // const newUser = getUserWithEmail(currentUser.email);
     const comment = new Comment(
       null,
-      profile.UID,
-      initiativeId,
+      currentUser.uid,
+      uid,
       newComment.trim()
   )
 

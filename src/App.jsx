@@ -22,7 +22,7 @@ export default function App() {
 
         {/* Bills list & detail */}
         <Route path="/initiative" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/initiative/:initiativeId" element={<InitiativePage />} />
+        <Route path="/initiative/:uid" element={<InitiativePage />} />
 
         {/* Create */}
         <Route path="/create-account" element={<CreateAccount />} />
