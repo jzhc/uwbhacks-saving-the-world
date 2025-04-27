@@ -5,6 +5,7 @@ import { getTag } from "../../apis/tag";
 
 export default function InitiativeCard({ initiative }) {
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
     // console.log(initiative)
 
@@ -23,6 +24,22 @@ export default function InitiativeCard({ initiative }) {
     useEffect(() => {
         async function fetchTags() {
 
+=======
+    const [user, setUser] = useState(null);
+    const [tags, setTags] = useState([])
+
+    useEffect(() => {
+        async function fetchUser() {
+            const data = await getUser(initiative.ScrumMasterId);
+            setUser(data[0]);
+        }
+        fetchUser();
+      }, [initiative.ScrumMasterId]);
+
+    useEffect(() => {
+        async function fetchTags() {
+
+>>>>>>> Stashed changes
 =======
     const [user, setUser] = useState(null);
     const [tags, setTags] = useState([])
