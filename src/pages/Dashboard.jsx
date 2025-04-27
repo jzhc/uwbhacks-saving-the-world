@@ -8,6 +8,9 @@ import InitiativeCard from "../components/InitiativeCard";
 import { getAllInitiative } from "../../apis/initiative";
 import InitiativeFilter from "../components/InitiativeFilter";
 
+import { getUser } from "../../apis/user";
+import { getTag } from "../../apis/tag";
+
 export default function Dashboard() {
   const [initial, setInitial] = useState([])
 
@@ -18,13 +21,9 @@ export default function Dashboard() {
       if (selectedFilters.length != 0) {
         const filtered = initial.filter((initiative) => 
           selectedFilters.every((tag) => 
-            initiative.tagsUID.includes(tag.UID)
+            initiative.data.tagsUID.includes(tag.UID)
           )
         )
-        console.log(selectedFilters)
-        console.log(initial)
-        console.log(filtered)
-
         setInitiatives(filtered)
       } else {
         setInitiatives(initial)
@@ -32,16 +31,31 @@ export default function Dashboard() {
   };
 
   useEffect(() => {
-    async function fetchInitiatives() {
+    async function enrichInitiatives() {
       const data = await getAllInitiative();
-      setInitial(data);
-      setInitiatives(data)
+      const res = await Promise.all(
+        data.map(async (d) => {
+          const user = await getUser(d.ScrumMasterId);
+          let tags = [];
+          if (Array.isArray(d.tagsUID) && d.tagsUID.length > 0) {
+            tags = await Promise.all(
+              d.tagsUID.map((uid) => getTag(uid))
+            );
+          }
+    
+          return { data: d, user: user[0], tags: tags[0] };
+        })
+      );
+
+      console.log(res)
+      setInitial(res)
+      setInitiatives(res)
     }
-    fetchInitiatives();
+    enrichInitiatives()
   }, []);
 
   const searched = initiatives.filter((i) =>
-      `${i.title} ${i.description}`.toLowerCase().includes(searchTerm.toLowerCase())
+      `${i.data.title} ${i.data.description}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -98,8 +112,8 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {searched.map((initiative) => (
               <InitiativeCard
-                key={initiative.UID}
-                initiative={initiative}
+                key={initiative.data.UID}
+                initiative={initiative.data} user={initiative.user} tags={initiative.tags}
               />
             ))}
           </div>
