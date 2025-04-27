@@ -14,6 +14,8 @@ import NavBar from "../components/navbar";                           // navigati
 import { getInitiative, updateInitiative } from "../../apis/initiative";
 
 
+import { Link } from "react-router-dom";
+
 export default function InitiativeDetail() {  
   /* ───── params & auth ───── */
   const { uid } = useParams();                 // route: /initiative/:uid
@@ -235,14 +237,14 @@ export default function InitiativeDetail() {
 
         {/* creator */}
         {creator ? (
-          <div className="bg-white rounded-2xl shadow-lg p-6 flex items-center space-x-4">
+          <Link to={`/u/${creator.UID}`} className="bg-white rounded-2xl shadow-lg p-6 flex items-center space-x-4">
             <div className="flex-1">
               <h2 className="text-xl font-semibold text-blue-900">Created by</h2>
               <p className="mt-1 text-blue-800">{creator.firstName} {creator.lastName}</p>
               <p className="mt-1 italic text-gray-500">{creator.profession}</p>
             </div>
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-gray-400">👤</div>
-          </div>
+          </Link>
         ) : (
           <div className="text-center text-blue-800 animate-pulse">Loading creator…</div>
         )}
