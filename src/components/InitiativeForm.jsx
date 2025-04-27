@@ -34,8 +34,9 @@ export default function InitiativeForm() {
     if (newTag.trim() !== "") {
       const tag = new Tag(null, newTag.trim());
       let tagUID = null;
-      console.log(newTag.trim());
+      //console.log(newTag.trim());
       const t = await checkIfTagExists(newTag.trim());
+      //console.log(t);
       if (t == null)
         tagUID = await postTag(tag);
       else
@@ -147,16 +148,35 @@ export default function InitiativeForm() {
             />
           </div>
 
-          <div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "10px" }}>
             <input
               type="text"
               value={newTag}
               onChange={(e) => setNewTag(e.target.value)}
+              className="w-80 h-10 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-transparent transition"
               placeholder="Enter a tag"
             />
-            <button type="button" onClick={handleAddTag}>
+            <button
+              type="button"
+              onClick={handleAddTag}
+              className="bg-indigo-600 hover:bg-indigo-700"
+              style={{
+                padding: "8px 16px",
+                //backgroundColor: "#4F46E5",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                cursor: "pointer",
+                fontSize: "16px",
+                fontWeight: "bold",
+                transition: "background-color 0.2s",
+              }}
+              //onMouseOver={(e) => (e.target.style.backgroundColor = "#4338CA")}
+              //onMouseOut={(e) => (e.target.style.backgroundColor = "#4F46E5")}
+            >
               Add Tag
             </button>
+
           </div>
           <div>
             {tagNames.map((tag, index) => (

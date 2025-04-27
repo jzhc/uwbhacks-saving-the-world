@@ -1,3 +1,4 @@
+// src/components/ProfileCard.jsx
 import React from "react";
 import {
   User2,
@@ -7,20 +8,33 @@ import {
   Phone,
   Mail,
 } from "lucide-react";
+import { auth } from "../../firebaseConfig";
+import { signOut } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 /**
  * Profile component
  *
  * Props
  * ──────────────────────────────────────────
- * {@link user}        – user object (null/undefined ➜ not‑logged‑in view)
+ * {@link user}        – user object (null/undefined ➜ not-logged-in view)
  * {@link posts}       – array of post objects { id, title, excerpt }
  * {@link onWritePost} – callback when “Write Post” is clicked (e.g. opens modal)
  */
 export default function ProfileCard({ user, posts = [], onWritePost }) {
   const isLoggedIn = user && Object.keys(user).length > 0;
+  const navigate = useNavigate();
 
-  /* ----------------------- NOT‑LOGGED‑IN ----------------------- */
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      navigate("/signin", { replace: true });
+    } catch (err) {
+      console.error("Sign-out failed:", err);
+    }
+  };
+
+  /* ----------------------- NOT-LOGGED-IN ----------------------- */
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen bg-[#EDEDF9] text-gray-900 font-sans flex flex-col">
@@ -38,11 +52,13 @@ export default function ProfileCard({ user, posts = [], onWritePost }) {
     );
   }
 
-  /* ------------------------- LOGGED‑IN ------------------------- */
+  /* ------------------------- LOGGED-IN ------------------------- */
   const fullName = `${user.firstName ?? "First"} ${user.lastName ?? "Last"}`;
 
   return (
     <div className="min-h-screen bg-[#EDEDF9] text-gray-900 font-sans flex flex-col">
+      {/* Top Navy Strip */}
+      <div className="w-full h-12 bg-[#00004E]" />
 
       <div className="flex-grow flex justify-center px-4 pb-12">
         <div className="w-full max-w-4xl bg-white rounded-2xl shadow-xl overflow-hidden mt-6">
@@ -85,7 +101,7 @@ export default function ProfileCard({ user, posts = [], onWritePost }) {
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-[#020082]">Recent Posts</h2>
               <button
-                className="flex items-center gap-2 text-sm text-[#1873D3] hover:underline"
+                className="cursor-pointer flex items-center gap-2 text-sm text-[#1873D3] hover:underline"
                 onClick={onWritePost}
               >
                 <PencilLine size={16} /> Write Post
@@ -114,6 +130,16 @@ export default function ProfileCard({ user, posts = [], onWritePost }) {
                 ))}
               </div>
             )}
+          </div>
+
+          {/* Sign Out Button at Bottom - aligned right */}
+          <div className="px-8 pb-8 flex justify-end">
+            <button
+              onClick={handleSignOut}
+              className="cursor-pointer text-sm text-red-600 hover:underline"
+            >
+              Sign Out
+            </button>
           </div>
         </div>
       </div>

@@ -25,6 +25,7 @@ export default function InitiativeDetail() {
   const [initiative, setInitiative] = useState(null);
   const [creator, setCreator] = useState(null);
 
+  console.log(uid);
   useEffect(() => {
       if (authInit) return;
       if (!currentUser) {
@@ -57,8 +58,10 @@ export default function InitiativeDetail() {
     async function fetchIvt() { 
       try {
         // TODO: replace stub with real fetch by uid
+
         const data = await getInitiative(uid)
         setInitiative(data[0]);
+
       } catch (e) {
         console.error("initiative load failed", e);
       }
@@ -134,7 +137,7 @@ export default function InitiativeDetail() {
       newComment.trim()
   )
 
-console.log(comment)
+// console.log(comment)
 
     try {
       await postComment(comment);
@@ -144,6 +147,7 @@ console.log(comment)
       console.error("post failed", err);
     }
   }
+  // console.log(uid);
 
   /* ------------------ UI ------------------ */
   if (!initiative) {
@@ -153,6 +157,7 @@ console.log(comment)
       </div>
     );
   }
+  // console.log(initiative);
 
   return (
     <div className="min-h-screen bg-gray-50">
