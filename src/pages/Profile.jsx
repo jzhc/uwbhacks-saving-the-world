@@ -30,6 +30,17 @@ export default function Profile() {
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [error, setError]           = useState(null);
 
+  // Sign-out handler on Profile page
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      navigate("/", { replace: true });
+    } catch (err) {
+      console.error("Sign-out failed:", err);
+    }
+  };
+
+  // Once auth ready, fetch Firestore profile
   useEffect(() => {
     if (authInit) return;                  // still initialising
     if (!uid && !firebaseUser) return;     // anonymous visit to /profile (will redirect)

@@ -5,6 +5,8 @@ import { signInWithPopup, signOut } from "firebase/auth";
 import { doesNotExist } from "../../apis/user";
 import { useNavigate, Link } from "react-router-dom";
 import useFireAuth from "../hooks/useFireAuth";
+import { User } from "lucide-react";
+
 
 
 export default function SignIn() {
@@ -50,32 +52,44 @@ export default function SignIn() {
   };
 
   if (initializing) {
-    return <p>Loading auth…</p>;
+    return <p className="text-white">Logging in…</p>;
+  }
+
+  if (!user) {
+    return (
+      <div className="flex flex-col items-center gap-2">
+        <button
+          onClick={handleSignIn}
+          disabled={loading}
+          className="flex items-center bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded shadow hover:bg-gray-50 disabled:opacity-50 cursor-pointer text-sm"
+        >
+          <img
+            src="https://developers.google.com/identity/images/g-logo.png"
+            alt="Google logo"
+            className="w-4 h-4 mr-2"
+          />
+          <span className="font-medium">
+            {loading ? "Signing in…" : "Sign in with Google"}
+          </span>
+        </button>
+        {error && <p className="text-red-600 mt-1 text-sm">{error}</p>}
+      </div>
+    );
   }
 
   if (user) {
     return (
-      <div className="flex items-center gap-2">
+      <div className="flex text-white items-center gap-2">
         <Link
           to="/profile"
-          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          className="flex items-center gap-1"
         >
+          <User size={20} className="stroke-current" />
+
           Profile
         </Link>
       </div>
     );
   }
 
-  return (
-    <div>
-      <button
-        onClick={handleSignIn}
-        disabled={loading}
-        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50 cursor-pointer"
-      >
-        {loading ? "Opening popup…" : "Sign in with Google"}
-      </button>
-      {error && <p className="text-red-600 mt-2">{error}</p>}
-    </div>
-  );
 }
