@@ -20,7 +20,6 @@ export default function InitiativeFilter({ onChange }) {
     useEffect(() => {
         async function fetchAllTags() {
             const data = await getAllTag()
-            console.log(data)
             setFilters(data)
         }
         fetchAllTags()

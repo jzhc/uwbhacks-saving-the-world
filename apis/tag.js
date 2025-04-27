@@ -19,7 +19,7 @@ export async function getTag(initiativeId) {
     let tags = [];
     try {
         const commentCollections = collection(db, 'tags').withConverter(tagConverter);
-        const q = query(commentCollections, where("initiativeUID", '==', initiativeId));
+        const q = query(commentCollections, where("UID", '==', initiativeId));
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc) => {
             tags.push(doc.data());

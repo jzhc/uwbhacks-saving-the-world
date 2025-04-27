@@ -1,33 +1,44 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getUser } from "../../apis/user";
+import { getTag } from "../../apis/tag";
 
 export default function InitiativeCard({ initiative }) {
+
     // console.log(initiative)
 
-  const [user, setUser] = useState(null);
+    const [user, setUser] = useState(null);
+    const [tags, setTags] = useState([])
 
-  useEffect(() => {
-    async function fetchUser() {
-      const data = await getUser(initiative.ScrumMasterId);
-      setUser(data[0]);
-    //   setUser(
-    //     new User(
-    //       5,
-    //       "Adam",
-    //       "Tan",
-    //       "AdamTan@gmail.com",
-    //       "567050540",
-    //       "Software Engineer",
-    //       5,
-    //       "WASGOOD GANG"
-    //     )
-    //   );
-    }
-    fetchUser();
-  }, [initiative.ScrumMasterId]);
 
-  return (
+    useEffect(() => {
+        async function fetchUser() {
+            const data = await getUser(initiative.ScrumMasterId);
+            setUser(data[0]);
+        }
+        fetchUser();
+      }, [initiative.ScrumMasterId]);
+
+    useEffect(() => {
+        async function fetchTags() {
+
+            if (!Array.isArray(initiative.tagsUID) || initiative.tagsUID.length === 0) {
+                setTags([])
+            }
+            const promises = initiative.tagsUID.map((uid) => getTag(uid))
+            const data = await Promise.all(promises)
+
+            console.log(data)
+
+            setTags(data);
+        }
+        fetchTags();
+    }, []);
+
+    console.log("RAHH")
+    console.log(tags)
+
+    return (
     <Link
       to={`/initiative/${initiative.UID}`}
       className="
@@ -60,6 +71,26 @@ export default function InitiativeCard({ initiative }) {
           {`${initiative.publishMonth}/${initiative.publishDay}/${initiative.publishYear}`}
         </time>
       </div>
+
+    {/* TAGS */}
+    {tags && (tags.length > 0) && (
+      <div className="mt-4 flex flex-wrap gap-2">
+        {tags.map((tag) => (
+          <span
+            key={tag[0].UID}
+            className="
+              text-xs font-medium
+              bg-blue-100 text-blue-800
+              px-2 py-1
+              rounded-full
+              truncate
+            "
+          >
+            {tag[0].text}
+          </span>
+        ))}
+      </div>
+    )}
 
       {/* DESCRIPTION */}
       <p className="mt-3 text-blue-800 text-base sm:text-lg leading-relaxed">
