@@ -10,7 +10,7 @@ CREATE PROFILE PAGE (for other users not yourself) - DONE
 
 SELF-PROFILE
 - link write post to create Initiative - Joshua
-- display all Initiatives made by the user - Joshua
+- display all Initiatives made by the user - DONE
 
 CREATE INITIATIVE
 - fix add tag area - Adam
