@@ -16,11 +16,15 @@ export default function Dashboard() {
 
   const handleFilterChange = (selectedFilters) => {
       if (selectedFilters.length != 0) {
-        const filtered = initiatives.filter((initiative) => 
-          selectedFilters.every((tagUID) => 
-            initiative.tagsUID.includes(tagUID)
+        const filtered = initial.filter((initiative) => 
+          selectedFilters.every((tag) => 
+            initiative.tagsUID.includes(tag.UID)
           )
         )
+        console.log(selectedFilters)
+        console.log(initial)
+        console.log(filtered)
+
         setInitiatives(filtered)
       } else {
         setInitiatives(initial)

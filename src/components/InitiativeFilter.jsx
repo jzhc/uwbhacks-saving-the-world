@@ -1,6 +1,7 @@
 // src/components/InitiativeFilter.jsx
 import React, { useState, useEffect, useRef } from "react";
 import { Filter } from "lucide-react";
+import { getAllTag } from "../../apis/tag";
 
 const placeholderFilters = [
   "Status: Open",
@@ -10,9 +11,20 @@ const placeholderFilters = [
 ];
 
 export default function InitiativeFilter({ onChange }) {
-  const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState([]);
-  const containerRef = useRef();
+    const [filters, setFilters] = useState([])
+
+    const [open, setOpen] = useState(false);
+    const [selected, setSelected] = useState([]);
+    const containerRef = useRef();
+
+    useEffect(() => {
+        async function fetchAllTags() {
+            const data = await getAllTag()
+            console.log(data)
+            setFilters(data)
+        }
+        fetchAllTags()
+    }, [])
 
   // close dropdown on outside click
   useEffect(() => {
@@ -57,8 +69,8 @@ export default function InitiativeFilter({ onChange }) {
       {open && (
         <div className="absolute mt-2 right-0 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-20">
           <ul className="p-2">
-            {placeholderFilters.map((filter) => (
-              <li key={filter}>
+            {filters.map((filter) => (
+              <li key={filter.UID}>
                 <label className="flex items-center space-x-2 px-2 py-1 hover:bg-gray-100 rounded cursor-pointer">
                   <input
                     type="checkbox"
@@ -66,7 +78,7 @@ export default function InitiativeFilter({ onChange }) {
                     onChange={() => toggleFilter(filter)}
                     className="form-checkbox h-4 w-4"
                   />
-                  <span className="text-gray-800">{filter}</span>
+                  <span className="text-gray-800">{filter.text}</span>
                 </label>
               </li>
             ))}
