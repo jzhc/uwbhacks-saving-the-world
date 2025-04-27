@@ -1,40 +1,5 @@
 import { Link } from "react-router-dom";
 
-import { getUser } from "../../apis/user";
-import { getTag } from "../../apis/tag";
-
-export default function InitiativeCard({ initiative }) {
-    // console.log(initiative)
-    const [user, setUser] = useState(null);
-    const [tags, setTags] = useState([])
-
-    useEffect(() => {
-        async function fetchUser() {
-            const data = await getUser(initiative.ScrumMasterId);
-            setUser(data[0]);
-        }
-        fetchUser();
-      }, [initiative.ScrumMasterId]);
-
-    useEffect(() => {
-        async function fetchTags() {
-
-            if (!Array.isArray(initiative.tagsUID) || initiative.tagsUID.length === 0) {
-                setTags([])
-            }
-            const promises = initiative.tagsUID.map((uid) => getTag(uid))
-            const data = await Promise.all(promises)
-
-            console.log(data)
-
-            setTags(data);
-        }
-        fetchTags();
-    }, []);
-
-    // console.log("RAHH")
-    // console.log(tags)
-
 
 export default function InitiativeCard({ initiative, user, tags }) {
     return (

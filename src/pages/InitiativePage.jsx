@@ -162,6 +162,7 @@ export default function InitiativeDetail() {
   )
 
 
+
     try {
       await postComment(comment);
       setNewComment("");
@@ -171,6 +172,19 @@ export default function InitiativeDetail() {
     }
   }
   // console.log(uid);
+
+  /*---------------sig------------------------*/
+  async function handleSubmitSig(e) {
+    e.preventDefault();
+    const u = await getUserWithEmail(currentUser.email);
+    console.log(u.UID);
+    const sig = new Signature(null, u.UID, uid, signature);
+    await postSignature(sig);
+    setSignature("");
+    //updateInitiative(null, null, null, null, null, null, sigCount + 1, null, null, null);
+    setSigCount(sigCount + 1);
+  }
+
 
   /*---------------sig------------------------*/
   async function handleSubmitSig(e) {
