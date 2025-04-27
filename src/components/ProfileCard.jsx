@@ -122,13 +122,7 @@ export default function ProfileCard({ user, posts = [] }) {
             {/* Posts */}
             <div className="mt-6 px-8 py-6 border-t border-gray-200 space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-[#020082]">All Initiatives</h2>
-                <button
-                  onClick={() => navigate("/create-initiative")}
-                  className="cursor-pointer flex items-center gap-2 text-sm text-[#1873D3] hover:underline"
-                >
-                  <PencilLine size={16} /> Create Initiative
-                </button>
+                <h2 className="text-xl font-semibold text-[#020082]">{user.firstName}'s Initiatives</h2>
               </div>
 
               {posts.length === 0 ? (
