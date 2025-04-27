@@ -6,55 +6,69 @@ import NavBar from "../components/navbar";
 import InitiativeCard from "../components/InitiativeCard";
 
 import { getAllInitiative } from "../../apis/initiative";
-import { placeholderInitiatives } from "../assets/constants";
+import InitiativeFilter from "../components/InitiativeFilter";
 
 export default function Dashboard() {
+  const [initial, setInitial] = useState([])
+
   const [initiatives, setInitiatives] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const handleFilterChange = (selectedFilters) => {
+      if (selectedFilters.length != 0) {
+        const filtered = initiatives.filter((initiative) => 
+          selectedFilters.every((tagUID) => 
+            initiative.tagsUID.includes(tagUID)
+          )
+        )
+        setInitiatives(filtered)
+      } else {
+        setInitiatives(initial)
+      }
+  };
 
   useEffect(() => {
     async function fetchInitiatives() {
       const data = await getAllInitiative();
-      setInitiatives(data);
-      //setInitiatives(placeholderInitiatives);
+      setInitial(data);
+      setInitiatives(data)
     }
     fetchInitiatives();
   }, []);
 
-  const filtered = initiatives.filter((i) =>
-    `${i.title} ${i.description}`.toLowerCase().includes(searchTerm.toLowerCase())
+  const searched = initiatives.filter((i) =>
+      `${i.title} ${i.description}`.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <NavBar />
 
-      {/* STICKY HEADER */}
       <header className="bg-white shadow sticky top-0 z-10">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between py-4 space-y-3 md:space-y-0">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
             Initiatives
           </h1>
 
- <div className="relative w-full md:w-1/2 lg:w-1/3">
-      <Search
-        size={20}
-        className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-600"
-      />
-      <input
-        type="text"
-        placeholder="Search initiatives..."
-        className="
-          w-full pl-12 pr-4 py-2
-          bg-white border border-gray-300
-          rounded-full shadow-sm
-          focus:outline-none focus:shadow-md focus:border-blue-500
-          transition
-        "
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-    </div>
+          <div className="relative w-full md:w-1/2 lg:w-1/3">
+            <Search
+              size={20}
+              className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-600"
+            />
+            <input
+              type="text"
+              placeholder="Search initiatives..."
+              className="
+                w-full pl-12 pr-4 py-2
+                bg-white border border-gray-300
+                rounded-full shadow-sm
+                focus:outline-none focus:shadow-md focus:border-blue-500
+                transition
+              "
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
 
           <Link
             to="/create-initiative"
@@ -69,14 +83,16 @@ export default function Dashboard() {
           >
             <Plus className="mr-2" /> New Initiative
           </Link>
+
+          <InitiativeFilter onChange={handleFilterChange}/>
         </div>
       </header>
 
       {/* MAIN GRID */}
       <main className="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {filtered.length > 0 ? (
+        {searched.length > 0 ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {filtered.map((initiative) => (
+            {searched.map((initiative) => (
               <InitiativeCard
                 key={initiative.UID}
                 initiative={initiative}
