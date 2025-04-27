@@ -1,350 +1,212 @@
 import { useState, useEffect, useCallback } from "react";
-import { useParams } from "react-router-dom";
-import { Initiative } from "../../models/initiativesModel";         
-import { getUser , getUserWithEmail} from "../../apis/user";                          
-import { getComment, postComment } from "../../apis/comment";   
-import { getSignatures, postSignature, getSignatureByUserUIDandInitiativeUID } from "../../apis/signature";     
-import useFireAuth from "../hooks/useFireAuth";                  
-// If you’d rather auto‑redirect, swap to useFireAuthWithKick
-import { useNavigate } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import useFireAuth from "../hooks/useFireAuth";
+import { getUserWithEmail } from "../../apis/user";
+import { getInitiative } from "../../apis/initiative";
+import { getSignatures, postSignature, getSignatureByUserUIDandInitiativeUID } from "../../apis/signature";
+import { getComment, postComment } from "../../apis/comment";
 import { Comment } from "../../models/commentModel";
-import { Signature } from "../../models/signatureModel"
-import { useFireAuthWithKick } from "../../src/hooks/useFireAuth"
-import NavBar from "../components/navbar";                           // navigation bar
-import { getInitiative, updateInitiative } from "../../apis/initiative";
+import { Signature } from "../../models/signatureModel";
+import NavBar from "../components/navbar";
+import { Info, Heart, MessageCircle } from 'lucide-react';
 
-
-import { Link } from "react-router-dom";
-
-export default function InitiativeDetail() {  
-  /* ───── params & auth ───── */
-  const { uid } = useParams();                 // route: /initiative/:uid
+export default function InitiativeDetail() {
+  const { uid } = useParams();
   const [currentUser, authInit] = useFireAuth();
   const navigate = useNavigate();
-  const [profile, setProfile] = useState(null);
-  const [loadingProfile, setLoadingProfile] = useState(false);
-  const [error, setError] = useState(null);
 
-
-  const [signature, setSignature] = useState("");
-  const [signatures, setSignatures] = useState([]);
-  const [sigCount, setSigCount] = useState(0);
-  /* ───── initiative & creator ───── */
+  // Initiative and user state
   const [initiative, setInitiative] = useState(null);
-  const [creator, setCreator] = useState(null);
-  const [signed, setSigned] = useState(false);
-  const [email, setEmail] = useState("");
-  const [userID, setUserID] = useState("");
-  const [user, initializing] = useFireAuthWithKick();
-  useEffect(() => {
-      if (authInit) return;
-      if (!currentUser) {
-        navigate("/dashboard", { replace: true });
-        return;
-      }
-  
-      // setLoadingProfile(true);
-      getUserWithEmail(currentUser.email)
-        .then((userData) => {
-          if (userData) {
-            setProfile(userData);
-          } else {
-            setError("Profile not found.");
-          }
-        })
-        .catch((err) => {
-          console.error("Failed to load profile:", err);
-          setError("Could not load profile. Please try again.");
-        })
-        .finally(() => {
-          setLoadingProfile(false);
-        });
-  }, [authInit, currentUser, navigate]);
-  
-  useEffect(() => {
-    async function s() {
-      try {
+  const [signatures, setSignatures] = useState([]);
+  const [hasSigned, setHasSigned] = useState(false);
+  const [signatureText, setSignatureText] = useState("");
+  const [sigCount, setSigCount] = useState(0);
 
-        const sigs = await getSignatures(uid);
-        setSignatures(sigs);
-        const u = await getUserWithEmail(currentUser.email);
-        const s = await getSignatureByUserUIDandInitiativeUID(u.UID, uid);
-        if (s != null)
-          setSigned(true);
-      }
-      catch(e) {
-
-      }
-    }
-    s();
-  }, [uid, sigCount, user])
-
-  /* ------------------ load initiative (stub) ------------------ */
-  useEffect(() => {
-    async function fetchIvt() { 
-      try {
-        // TODO: replace stub with real fetch by uid
-
-        const data = await getInitiative(uid)
-        setInitiative(data[0]);
-
-      } catch (e) {
-        console.error("initiative load failed", e);
-      }
-    }
-    fetchIvt();
-  }, [uid, sigCount]);
-
-  /* ------------------ load creator ------------------ */
-  useEffect(() => {
-    if (!initiative) return;
-    (async () => {
-      try {
-        const [user] = await getUser(initiative.ScrumMasterId);
-        setCreator(user);
-      } catch (e) {
-        console.error("creator load failed", e);
-      }
-    })();
-  }, [initiative]);
-
-  /* ───── comments ───── */
+  // Comments
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
-  const [loadingC, setLoadingC] = useState(true);
+  const [loadingComments, setLoadingComments] = useState(true);
 
-  const refreshComments = useCallback(async () => {
-    if (!uid) return;
-    setLoadingC(true);
-
-    try {
-      // ❶ use the correct id
-      const raw = await getComment(uid);
-
-      // ❷ normalise createdAt so Date() never breaks
-      const sorted = raw
-        .map(c => ({
-          ...c,
-          createdAt: (() => {
-            const t = c.createdAt;
-            if (!t) return 0;                         // missing
-            if (typeof t === "object") {
-              if (typeof t.toMillis === "function") return t.toMillis(); // Firestore v9
-              if ("seconds" in t) return t.seconds * 1000;               // v8
-            }
-            return Number(t) || Date.parse(t) || 0;   // ms, ISO, etc.
-          })()
-        }))
-        .sort((a, b) => b.createdAt - a.createdAt);
-
-      setComments(sorted);
-    } catch (err) {
-      console.error("comment load failed", err);
-    } finally {
-      setLoadingC(false);
-    }
-  }, [uid]);   // keep the id in the closure fresh
-
+  // Redirect unauthenticated user
   useEffect(() => {
-    refreshComments();
-  }, [refreshComments]);
+    if (authInit) return;
+    if (!currentUser) navigate("/dashboard", { replace: true });
+  }, [authInit, currentUser, navigate]);
 
-  /* ------------------ submit comment ------------------ */
-  async function handleSubmit(e) {
-    e.preventDefault();
-    if (!currentUser || !newComment.trim()) return;
-
-    // Build object exactly as your converter expects (omit undefined!)
-    // const newUser = getUserWithEmail(currentUser.email);
-    const comment = new Comment(
-      null,
-      currentUser.uid,
-      uid,
-      newComment.trim()
-  )
-
-
-
-    try {
-      await postComment(comment);
-      setNewComment("");
-      refreshComments();
-    } catch (err) {
-      console.error("post failed", err);
+  // Load initiative
+  useEffect(() => {
+    async function load() {
+      const [data] = await getInitiative(uid);
+      setInitiative(data);
     }
-  }
-  // console.log(uid);
+    if (uid) load();
+  }, [uid, sigCount]);
 
-  /*---------------sig------------------------*/
-  async function handleSubmitSig(e) {
+  // Load signatures
+  useEffect(() => {
+    async function loadSigs() {
+      if (!currentUser) return;
+      const all = await getSignatures(uid);
+      setSignatures(all);
+      const user = await getUserWithEmail(currentUser.email);
+      const existing = await getSignatureByUserUIDandInitiativeUID(user.UID, uid);
+      setHasSigned(Boolean(existing));
+    }
+    loadSigs();
+  }, [uid, currentUser, sigCount]);
+
+  // Load comments
+  const refreshComments = useCallback(async () => {
+    setLoadingComments(true);
+    const raw = await getComment(uid);
+    const sorted = raw
+      .map(c => ({
+        ...c,
+        createdAt: typeof c.createdAt === 'object'
+          ? (c.createdAt.seconds || c.createdAt.toMillis()) * 1000
+          : Date.parse(c.createdAt)
+      }))
+      .sort((a, b) => b.createdAt - a.createdAt);
+    setComments(sorted);
+    setLoadingComments(false);
+  }, [uid]);
+
+  useEffect(() => { if (uid) refreshComments(); }, [refreshComments, uid]);
+
+  // Handlers
+  const handleSignature = async (e) => {
     e.preventDefault();
-    const u = await getUserWithEmail(currentUser.email);
-    console.log(u.UID);
-    const sig = new Signature(null, u.UID, uid, signature);
-    await postSignature(sig);
-    setSignature("");
-    //updateInitiative(null, null, null, null, null, null, sigCount + 1, null, null, null);
-    setSigCount(sigCount + 1);
-  }
+    const user = await getUserWithEmail(currentUser.email);
+    await postSignature(new Signature(null, user.UID, uid, signatureText.trim()));
+    setSignatureText("");
+    setSigCount(c => c + 1);
+  };
 
-
-  /*---------------sig------------------------*/
-  async function handleSubmitSig(e) {
+  const handleComment = async (e) => {
     e.preventDefault();
-    const u = await getUserWithEmail(currentUser.email);
-    console.log(u.UID);
-    const sig = new Signature(null, u.UID, uid, signature);
-    await postSignature(sig);
-    setSignature("");
-    //updateInitiative(null, null, null, null, null, null, sigCount + 1, null, null, null);
-    setSigCount(sigCount + 1);
-  }
+    if (!newComment.trim()) return;
+    await postComment(new Comment(null, currentUser.uid, uid, newComment.trim()));
+    setNewComment("");
+    refreshComments();
+  };
 
-
-  /* ------------------ UI ------------------ */
+  // Loading state
   if (!initiative) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <span className="text-blue-800 animate-pulse">Loading initiative…</span>
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <p className="text-blue-700 font-medium animate-pulse">Loading initiative...</p>
       </div>
     );
   }
-  // console.log(initiative);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <NavBar />
 
-      {/* header */}
-      <header className="bg-blue-900 py-6 shadow-md">
-        <div className="container mx-auto px-6">
-          <h1 className="text-white text-4xl font-bold">{initiative.title}</h1>
+      {/* Hero */}
+      <header className="bg-white shadow-sm">
+        <div className="max-w-5xl mx-auto px-6 py-6">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900">{initiative.title}</h1>
         </div>
       </header>
 
-      {/* main */}
-      <main className="container mx-auto px-6 py-10 space-y-8">
-        {/* initiative card */}
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <p className="text-blue-800 text-lg leading-relaxed">{initiative.description}</p>
-        </div>
-        
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h2 className="text-2xl font-semibold text-blue-900 flex flex-col">Details</h2>
-          <p className="text-blue-800 text-lg leading-relaxed">{initiative.details}</p>
-        </div>
+      <main className="flex-1 max-w-5xl mx-auto px-6 py-8 space-y-12">
+        {/* Section Wrapper */}
+        {/** Each section has label, content, clear contrast **/}
 
-        {/* creator */}
-        {creator ? (
-          <Link to={`/u/${creator.UID}`} className="bg-white rounded-2xl shadow-lg p-6 flex items-center space-x-4">
-            <div className="flex-1">
-              <h2 className="text-xl font-semibold text-blue-900">Created by</h2>
-              <p className="mt-1 text-blue-800">{creator.firstName} {creator.lastName}</p>
-              <p className="mt-1 italic text-gray-500">{creator.profession}</p>
-              <p className="text-gray-600 mb-4">
-                Published on {" "}
-                <time dateTime={`${initiative.publishYear}-${initiative.publishMonth}-${initiative.publishDay}`}>
-                  {`${initiative.publishMonth}/${initiative.publishDay}/${initiative.publishYear}`}
-                </time>
-              </p>
-            </div>
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-gray-400">👤</div>
-          </Link>
-        ) : (
-          <div className="text-center text-blue-800 animate-pulse">Loading creator…</div>
-        )}
+        <Section title="Overview" Icon={Info}>
+          <p className="text-gray-800 leading-relaxed">{initiative.description}</p>
+        </Section>
 
-        {/* Signature */} 
-        <div className="bg-white rounded-2xl shadow-lg p-6 flex space-x-4">
-          <div className="flex w-full">
-            <div className="flex flex-col space-y-4">
-              <h2 className="text-2xl font-semibold text-blue-900 flex flex-col">Signatures</h2>
-              {signed == false ? (
-              <form onSubmit={handleSubmitSig} className="space-y-4">
-                <input
-                  className="w-80 px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Sign Here"
-                  value={signature}
-                  onChange={(e) => setSignature(e.target.value)}
-                />
-                <button className="w-20 px-3 py-3 bg-blue-300 rounded-lg ml-2 hover:bg-blue-400">
-                  sign
-                </button>
-              </form>
-              ) : (
-                <div className="bg-gray-300 p-4 rounded-lg">
-                  You have already signed this initiative
-                </div>
-              )}
-            </div>
-            <div
-              className="ml-auto h-30 overflow-y-auto p-4 rounded bg-gray-100"
-            >
-              <div className="grid grid-cols-3 gap-x-15 gap-y-2">
-                {signatures.map((sig, index) => (
-                  <div className="min-w-[100px] w- truncate" key={index}>
-                    {sig.signature}
-                  </div>
-                ))}
-              </div>
-            </div>
+        <Section title="Details" Icon={Info}>
+          <p className="text-gray-800 leading-relaxed">{initiative.details}</p>
+        </Section>
 
-          </div>
-        </div>
-        
-      
+        <Section title="Rationale" Icon={Info}>
+          <p className="text-gray-800 leading-relaxed">{initiative.rationale}</p>
+        </Section>
 
-        {/* comments */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 space-y-6">
-          <h2 className="text-2xl font-semibold text-blue-900">Comments</h2>
-
-          {/* new comment */}
-          {!authInit && currentUser ? (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <textarea
-                className="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none min-h-[100px]"
-                placeholder="Write your comment…"
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
+        <Section title={`Signatures (${signatures.length})`} Icon={Heart}>
+          {!hasSigned ? (
+            <form onSubmit={handleSignature} className="flex flex-col sm:flex-row sm:items-center gap-3">
+              <input
+                className="w-full sm:flex-1 border border-gray-300 bg-white rounded px-4 py-2 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                placeholder="Type your signature"
+                value={signatureText}
+                onChange={e => setSignatureText(e.target.value)}
               />
               <button
                 type="submit"
-                className="bg-blue-900 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-800 disabled:opacity-50"
+                className="w-full sm:w-auto bg-blue-700 text-white font-medium rounded px-6 py-2 hover:bg-blue-600 disabled:opacity-50"
+                disabled={!signatureText.trim()}
+              >Sign</button>
+            </form>
+          ) : (
+            <p className="text-gray-600 italic">You've already signed.</p>
+          )}
+          <div className="mt-4 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 max-h-48 overflow-y-auto">
+            {signatures.map((sig, i) => (
+              <div key={i} className="bg-gray-100 rounded px-2 py-1 text-gray-700 truncate">
+                {sig.signature}
+              </div>
+            ))}
+          </div>
+        </Section>
+
+        <Section title={`Comments (${comments.length})`} Icon={MessageCircle}>
+          {currentUser && !authInit ? (
+            <form onSubmit={handleComment} className="space-y-4">
+              <textarea
+                className="w-full border border-gray-300 bg-white rounded px-4 py-2 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-300 resize-none"
+                rows={4}
+                placeholder="Write a comment"
+                value={newComment}
+                onChange={e => setNewComment(e.target.value)}
+              />
+              <button
+                type="submit"
+                className="bg-green-700 text-white font-medium rounded px-6 py-2 hover:bg-green-600 disabled:opacity-50"
                 disabled={!newComment.trim()}
-              >
-                Post Comment
-              </button>
+              >Post Comment</button>
             </form>
           ) : authInit ? (
-            <p className="text-blue-800 animate-pulse">Checking sign‑in…</p>
+            <p className="text-gray-500">Verifying...</p>
           ) : (
-            <p className="text-gray-500 italic">Sign in to leave a comment.</p>
+            <p className="text-gray-500 italic">Sign in to comment</p>
           )}
 
-            {/* list */}
-            {loadingC ? (
-              <p className="text-blue-800 animate-pulse">Loading comments…</p>
-            ) : comments.length === 0 ? (
-              <p className="text-gray-400">No comments yet. Be the first to respond!</p>
-            ) : (
-              <ul className="space-y-4">
-                {comments.map(c => (
-                  <li key={c.UID} className="border border-gray-200 rounded-lg p-4">
-                    {/* simple header — you can improve this later */}
-                    <p className="mb-2 font-semibold text-blue-900">
-                      {c.userUID === currentUser?.uid ? "You" : "User"}
-                    </p>
-                    {/* the actual comment text */}
-                    <p className="text-gray-800 whitespace-pre-wrap">
-                      {c.text}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            )}
-
-        </div>
+          {loadingComments ? (
+            <p className="text-gray-500 mt-4">Loading comments...</p>
+          ) : comments.length === 0 ? (
+            <p className="text-gray-500 italic mt-4">No comments yet.</p>
+          ) : (
+            <ul className="mt-4 space-y-3">
+              {comments.map(c => (
+                <li key={c.UID} className="border border-green-300 bg-white rounded px-4 py-3">
+                  <div className="flex items-center mb-2">
+                    <span className="text-sm font-semibold text-gray-800">
+                      {c.userUID === currentUser.uid ? "You" : "User"}
+                    </span>
+                  </div>
+                  <p className="text-gray-700 whitespace-pre-wrap">{c.text}</p>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Section>
       </main>
     </div>
+  );
+}
+
+function Section({ title, Icon, children }) {
+  return (
+    <section className="bg-white rounded-xl shadow p-6">
+      <div className="flex items-center mb-4">
+        <Icon className="w-5 h-5 text-blue-500 mr-2" />
+        <h2 className="text-xl font-semibold text-gray-900">{title}</h2>
+      </div>
+      {children}
+    </section>
   );
 }
