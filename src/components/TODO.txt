@@ -6,7 +6,7 @@ INITIATIVE PAGE - ADAM
 - comments don't display usernames
 - usernames should be clickable
 
-CREATE PROFILE PAGE (for other users not yourself) - Jacky
+CREATE PROFILE PAGE (for other users not yourself) - DONE
 
 SELF-PROFILE
 - link write post to create Initiative - Joshua
