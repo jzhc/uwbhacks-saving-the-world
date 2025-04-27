@@ -224,13 +224,12 @@ export default function InitiativeDetail() {
       <main className="container mx-auto px-6 py-10 space-y-8">
         {/* initiative card */}
         <div className="bg-white rounded-2xl shadow-lg p-8">
-          <p className="text-gray-600 mb-4">
-            Published on {" "}
-            <time dateTime={`${initiative.publishYear}-${initiative.publishMonth}-${initiative.publishDay}`}>
-              {`${initiative.publishMonth}/${initiative.publishDay}/${initiative.publishYear}`}
-            </time>
-          </p>
           <p className="text-blue-800 text-lg leading-relaxed">{initiative.description}</p>
+        </div>
+        
+        <div className="bg-white rounded-2xl shadow-lg p-8">
+          <h2 className="text-2xl font-semibold text-blue-900 flex flex-col">Details</h2>
+          <p className="text-blue-800 text-lg leading-relaxed">{initiative.details}</p>
         </div>
 
         {/* creator */}
@@ -240,6 +239,12 @@ export default function InitiativeDetail() {
               <h2 className="text-xl font-semibold text-blue-900">Created by</h2>
               <p className="mt-1 text-blue-800">{creator.firstName} {creator.lastName}</p>
               <p className="mt-1 italic text-gray-500">{creator.profession}</p>
+              <p className="text-gray-600 mb-4">
+                Published on {" "}
+                <time dateTime={`${initiative.publishYear}-${initiative.publishMonth}-${initiative.publishDay}`}>
+                  {`${initiative.publishMonth}/${initiative.publishDay}/${initiative.publishYear}`}
+                </time>
+              </p>
             </div>
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-gray-400">👤</div>
           </div>
