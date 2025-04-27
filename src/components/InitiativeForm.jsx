@@ -1,9 +1,11 @@
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 import { postInitiative } from '../../apis/initiative';
 import { useNavigate } from "react-router-dom";
 import { Initiative } from '../../models/initiativesModel';
-import { postTag } from '../../apis/tag';
+import { postTag, checkIfTagExists } from '../../apis/tag';
 import { Tag } from '../../models/tagModel';
+import { useFireAuthWithKick } from "../../src/hooks/useFireAuth"
+import { getUserWithEmail } from '../../apis/user';
 
 /**
  * A modern form for creating a new initiative.
@@ -16,18 +18,30 @@ export default function InitiativeForm() {
   const [details, setDetails] = useState('');
   const [rationale, setRationale] = useState('');
   const [tags, setTags] = useState([]);
+  const [tagNames, setTagNames] = useState([]);
   const [newTag, setNewTag] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [user, initializing] = useFireAuthWithKick();
 
   const navigate = useNavigate()
-
+  const handleRemoveTag = (indexToRemove) => {
+    setTags((prevTags) => prevTags.filter((_, index) => index !== indexToRemove));
+    setTagNames((prevTags) => prevTags.filter((_, index) => index !== indexToRemove));
+  };
   const handleAddTag = async (e) => {
     e.preventDefault();
     if (newTag.trim() !== "") {
       const tag = new Tag(null, newTag.trim());
-      const tagUID = await postTag(tag);
+      let tagUID = null;
+      console.log(newTag.trim());
+      const t = await checkIfTagExists(newTag.trim());
+      if (t == null)
+        tagUID = await postTag(tag);
+      else
+         tagUID = t.UID;
       setTags((prevTags) => [...prevTags, tagUID]); // push into array
+      setTagNames((prevTags) => [...prevTags, newTag.trim()])
       setNewTag(""); // clear input box
     }
   }
@@ -37,13 +51,13 @@ export default function InitiativeForm() {
     setError('');
 
     const date = new Date()
-
+    const SM = (await getUserWithEmail(user.email));
     try {
       await postInitiative(
         new Initiative(
           null,
           title,
-          5,
+          SM.UID,
           description,
           details,
           rationale,
@@ -143,6 +157,34 @@ export default function InitiativeForm() {
             <button type="button" onClick={handleAddTag}>
               Add Tag
             </button>
+          </div>
+          <div>
+            {tagNames.map((tag, index) => (
+              <span
+              key={index}
+              style={{
+                padding: "8px 12px",
+                backgroundColor: "#f0f0f0",
+                borderRadius: "9999px", // full round
+                fontSize: "14px",
+                border: "1px solid #ccc",
+                display: "inline-block",
+              }}>
+              {tag}
+              <button
+                onClick={() => handleRemoveTag(index)}
+                style={{
+                  marginLeft: "8px",
+                  background: "transparent",
+                  border: "none",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                  color: "#888",
+                }}>
+                ❌
+              </button>
+            </span>
+            ))}
           </div>
 
           <button

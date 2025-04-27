@@ -2,6 +2,19 @@ import { collection, where, query, getDocs, addDoc, updateDoc, documentId, doc, 
 import { db } from "../firebaseConfig"
 import { tagConverter } from "../converters/tagConverter";
 
+export async function checkIfTagExists(name) {
+    try {
+        const tagCollections = collection(db, 'tags').withConverter(tagConverter);
+        const q = query(tagCollections, where("text", '==', name));
+        const snap = await getDocs(q);
+        if (snap.empty)
+            return null;
+        return snap.docs[0].data();
+    }
+    catch(e) {
+        throw(e);
+    }
+}
 export async function getTag(initiativeId) {
     let tags = [];
     try {
