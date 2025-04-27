@@ -20,11 +20,12 @@ export default function Dashboard() {
 
   const [user, initializing] = useFireAuth()
 
-  const handleFilterChange = (selectedFilters) => {
-      if (selectedFilters.length != 0) {
+  const handleTagChange = (selectedTags) => {
+    console.log(selectedTags)
+      if (selectedTags.length != 0) {
         const filtered = initial.filter((initiative) => 
-          selectedFilters.every((tag) => 
-            initiative.data.tagsUID.includes(tag.UID)
+          selectedTags.every((tag) => 
+            (initiative.data.tagsUID.includes(tag.UID) || (initiative.user && initiative.user.districtID === (tag.UID).toString()))
           )
         )
         setInitiatives(filtered)
@@ -32,6 +33,8 @@ export default function Dashboard() {
         setInitiatives(initial)
       }
   };
+
+
 
   useEffect(() => {
     async function enrichInitiatives() {
@@ -126,8 +129,7 @@ export default function Dashboard() {
 
           }
 
-
-          <InitiativeFilter onChange={handleFilterChange}/>
+          <InitiativeFilter onChange={handleTagChange}/>
         </div>
       </header>
 

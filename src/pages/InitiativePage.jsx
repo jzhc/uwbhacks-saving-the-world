@@ -2,14 +2,17 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { Initiative } from "../../models/initiativesModel";         
 import { getUser , getUserWithEmail} from "../../apis/user";                          
-import { getComment, postComment } from "../../apis/comment";        
+import { getComment, postComment } from "../../apis/comment";   
+import { getSignatures, postSignature, getSignatureByUserUIDandInitiativeUID } from "../../apis/signature";     
 import useFireAuth from "../hooks/useFireAuth";                  
 // If you’d rather auto‑redirect, swap to useFireAuthWithKick
 import { useNavigate } from "react-router-dom";
 import { Comment } from "../../models/commentModel";
-
+import { Signature } from "../../models/signatureModel"
+import { useFireAuthWithKick } from "../../src/hooks/useFireAuth"
 import NavBar from "../components/navbar";                           // navigation bar
-import { getInitiative } from "../../apis/initiative";
+import { getInitiative, updateInitiative } from "../../apis/initiative";
+
 
 export default function InitiativeDetail() {  
   /* ───── params & auth ───── */
@@ -20,11 +23,17 @@ export default function InitiativeDetail() {
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [error, setError] = useState(null);
 
+
+  const [signature, setSignature] = useState("");
+  const [signatures, setSignatures] = useState([]);
+  const [sigCount, setSigCount] = useState(0);
   /* ───── initiative & creator ───── */
   const [initiative, setInitiative] = useState(null);
   const [creator, setCreator] = useState(null);
-
-  console.log(uid);
+  const [signed, setSigned] = useState(false);
+  const [email, setEmail] = useState("");
+  const [userID, setUserID] = useState("");
+  const [user, initializing] = useFireAuthWithKick();
   useEffect(() => {
       if (authInit) return;
       if (!currentUser) {
@@ -33,7 +42,6 @@ export default function InitiativeDetail() {
       }
   
       // setLoadingProfile(true);
-      // console.log(currentUser.email);
       getUserWithEmail(currentUser.email)
         .then((userData) => {
           if (userData) {
@@ -49,8 +57,25 @@ export default function InitiativeDetail() {
         .finally(() => {
           setLoadingProfile(false);
         });
-    }, [authInit, currentUser, navigate]);
+  }, [authInit, currentUser, navigate]);
   
+  useEffect(() => {
+    async function s() {
+      try {
+
+        const sigs = await getSignatures(uid);
+        setSignatures(sigs);
+        const u = await getUserWithEmail(currentUser.email);
+        const s = await getSignatureByUserUIDandInitiativeUID(u.UID, uid);
+        if (s != null)
+          setSigned(true);
+      }
+      catch(e) {
+
+      }
+    }
+    s();
+  }, [uid, sigCount, user])
 
   /* ------------------ load initiative (stub) ------------------ */
   useEffect(() => {
@@ -66,7 +91,7 @@ export default function InitiativeDetail() {
       }
     }
     fetchIvt();
-  }, [uid]);
+  }, [uid, sigCount]);
 
   /* ------------------ load creator ------------------ */
   useEffect(() => {
@@ -136,7 +161,7 @@ export default function InitiativeDetail() {
       newComment.trim()
   )
 
-// console.log(comment)
+
 
     try {
       await postComment(comment);
@@ -147,6 +172,32 @@ export default function InitiativeDetail() {
     }
   }
   // console.log(uid);
+
+  /*---------------sig------------------------*/
+  async function handleSubmitSig(e) {
+    e.preventDefault();
+    const u = await getUserWithEmail(currentUser.email);
+    console.log(u.UID);
+    const sig = new Signature(null, u.UID, uid, signature);
+    await postSignature(sig);
+    setSignature("");
+    //updateInitiative(null, null, null, null, null, null, sigCount + 1, null, null, null);
+    setSigCount(sigCount + 1);
+  }
+
+
+  /*---------------sig------------------------*/
+  async function handleSubmitSig(e) {
+    e.preventDefault();
+    const u = await getUserWithEmail(currentUser.email);
+    console.log(u.UID);
+    const sig = new Signature(null, u.UID, uid, signature);
+    await postSignature(sig);
+    setSignature("");
+    //updateInitiative(null, null, null, null, null, null, sigCount + 1, null, null, null);
+    setSigCount(sigCount + 1);
+  }
+
 
   /* ------------------ UI ------------------ */
   if (!initiative) {
@@ -195,6 +246,46 @@ export default function InitiativeDetail() {
         ) : (
           <div className="text-center text-blue-800 animate-pulse">Loading creator…</div>
         )}
+
+        {/* Signature */} 
+        <div className="bg-white rounded-2xl shadow-lg p-6 flex space-x-4">
+          <div className="flex w-full">
+            <div className="flex flex-col space-y-4">
+              <h2 className="text-2xl font-semibold text-blue-900 flex flex-col">Signatures</h2>
+              {signed == false ? (
+              <form onSubmit={handleSubmitSig} className="space-y-4">
+                <input
+                  className="w-80 px-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Sign Here"
+                  value={signature}
+                  onChange={(e) => setSignature(e.target.value)}
+                />
+                <button className="w-20 px-3 py-3 bg-blue-300 rounded-lg ml-2 hover:bg-blue-400">
+                  sign
+                </button>
+              </form>
+              ) : (
+                <div className="bg-gray-300 p-4 rounded-lg">
+                  You have already signed this initiative
+                </div>
+              )}
+            </div>
+            <div
+              className="ml-auto h-30 overflow-y-auto p-4 rounded bg-gray-100"
+            >
+              <div className="grid grid-cols-3 gap-x-15 gap-y-2">
+                {signatures.map((sig, index) => (
+                  <div className="min-w-[100px] w- truncate" key={index}>
+                    {sig.signature}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        </div>
+        
+      
 
         {/* comments */}
         <div className="bg-white rounded-2xl shadow-lg p-8 space-y-6">
