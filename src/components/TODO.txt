@@ -1,10 +1,18 @@
-1. Add commenting and comment section to InitiativePage
-2. Add signatures
-    Initiatve has signatureCount field
-    querySignaturesByBillID
-3. Sync profile page with authentication
-4. Add a detail field to Initiative
-5. Make new Initiative page
-6. Redirect to dashboard on signing out
+NAVBAR
+- link to profile (can be done in <SignIn> component) - Joshua
 
-LAST. Block features if not authenticated
+INITIATIVE PAGE - ADAM
+- signature functionality
+- comments don't display usernames
+- usernames should be clickable
+
+CREATE PROFILE PAGE (for other users not yourself) - Jacky
+
+SELF-PROFILE
+- link write post to create Initiative - Joshua
+- display all Initiatives made by the user - Joshua
+
+CREATE INITIATIVE
+- fix add tag area - Adam
+
+FIX RENDERING
