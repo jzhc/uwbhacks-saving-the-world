@@ -5,6 +5,8 @@ import { Search, Plus } from "lucide-react";
 import NavBar from "../components/navbar";
 import InitiativeCard from "../components/InitiativeCard";
 
+import useFireAuth from "../hooks/useFireAuth";
+
 import { getAllInitiative } from "../../apis/initiative";
 import InitiativeFilter from "../components/InitiativeFilter";
 
@@ -13,9 +15,10 @@ import { getTag } from "../../apis/tag";
 
 export default function Dashboard() {
   const [initial, setInitial] = useState([])
-
   const [initiatives, setInitiatives] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const [user, initializing] = useFireAuth()
 
   const handleFilterChange = (selectedFilters) => {
       if (selectedFilters.length != 0) {
@@ -88,19 +91,41 @@ export default function Dashboard() {
             />
           </div>
 
-          <Link
-            to="/create-initiative"
-            className="
-              inline-flex items-center
-              bg-blue-600 hover:bg-blue-700
-              text-white font-medium
-              px-4 py-2 rounded-full
-              shadow-md hover:shadow-lg
-              transition
-            "
-          >
-            <Plus className="mr-2" /> New Initiative
-          </Link>
+          {
+            user ? (
+              <Link
+                to="/create-initiative"
+                className="
+                  inline-flex items-center
+                  bg-blue-600 hover:bg-blue-700
+                  text-white font-medium
+                  px-4 py-2 rounded-full
+                  shadow-md hover:shadow-lg
+                  transition
+                "
+              >
+                <Plus className="mr-2" /> New Initiative
+              </Link>
+            ) : (
+              <p
+              to="/create-initiative"
+              className="
+                select-none
+                cursor-not-allowed
+                inline-flex items-center
+                bg-blue-600 hover:bg-blue-700
+                text-white font-medium
+                px-4 py-2 rounded-full
+                shadow-md hover:shadow-lg
+                transition
+              "
+            >
+              <Plus className="mr-2" /> New Initiative
+            </p>
+            )
+
+          }
+
 
           <InitiativeFilter onChange={handleFilterChange}/>
         </div>

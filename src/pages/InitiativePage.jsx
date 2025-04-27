@@ -20,7 +20,6 @@ export default function InitiativeDetail() {
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [error, setError] = useState(null);
 
-
   /* ───── initiative & creator ───── */
   const [initiative, setInitiative] = useState(null);
   const [creator, setCreator] = useState(null);
