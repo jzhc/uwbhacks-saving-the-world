@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import useFireAuth from "../hooks/useFireAuth";
-import { getUserWithEmail } from "../../apis/user";
+import { getUser, getUserWithEmail } from "../../apis/user";
 import { getInitiative } from "../../apis/initiative";
 import { getSignatures, postSignature, getSignatureByUserUIDandInitiativeUID } from "../../apis/signature";
 import { getComment, postComment } from "../../apis/comment";
@@ -22,10 +22,26 @@ export default function InitiativeDetail() {
   const [signatureText, setSignatureText] = useState("");
   const [sigCount, setSigCount] = useState(0);
 
+  // Creator
+  const [creator, setCreator] = useState(null);
+
   // Comments
   const [comments, setComments] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [loadingComments, setLoadingComments] = useState(true);
+
+  // Load Creator
+  useEffect(() => {
+    if (!initiative) return;
+    (async () => {
+      try {
+        const [user] = await getUser(initiative.ScrumMasterId);
+        setCreator(user);        setCreator(user);
+      } catch (e) {
+        console.error("creator load failed", e);        console.error("creator load failed", e);
+      }
+    })();
+  }, [initiative]);
 
   // Redirect unauthenticated user
   useEffect(() => {
@@ -113,6 +129,25 @@ export default function InitiativeDetail() {
       <main className="flex-1 max-w-5xl mx-auto px-6 py-8 space-y-12">
         {/* Section Wrapper */}
         {/** Each section has label, content, clear contrast **/}
+
+        {creator ? (
+           <Link to={`/u/${creator.UID}`} className="bg-white rounded-2xl shadow-lg p-6 flex items-center space-x-4">          
+             <div className="flex-1">
+               <h2 className="text-xl font-semibold text-blue-900">Created by</h2>
+               <p className="mt-1 text-blue-800">{creator.firstName} {creator.lastName}</p>             
+               <p className="mt-1 italic text-gray-500">{creator.profession}</p>     
+               <p className="text-gray-600 mb-4">
+                 Published on {" "}
+                 <time dateTime={`${initiative.publishYear}-${initiative.publishMonth}-${initiative.publishDay}`}>
+                   {`${initiative.publishMonth}/${initiative.publishDay}/${initiative.publishYear}`}
+                 </time>
+               </p>
+             </div>
+             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center text-gray-400">👤</div>
+           </Link>
+         ) : (
+           <div className="text-center text-blue-800 animate-pulse">Loading creator…</div>   
+      )}
 
         <Section title="Overview" Icon={Info}>
           <p className="text-gray-800 leading-relaxed">{initiative.description}</p>
