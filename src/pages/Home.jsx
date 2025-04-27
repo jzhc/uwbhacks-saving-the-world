@@ -2,7 +2,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 // import the file so the bundler knows how to process it
-import heroImage from "../assets/bg-flag.jpg";
+import heroImage from "../assets/bg-flag2.jpg";
 
 export default function Home() {
   return (
@@ -24,7 +24,7 @@ export default function Home() {
 
         {/* 3) Your content on top */}
         <div className="relative z-10 flex flex-col items-center justify-center h-full text-white px-4 text-center">
-          <p className="uppercase tracking-wide mb-2">April 26, 2025</p>
+          <p className="uppercase tracking-wide mb-2">April 27, 2025</p>
           <h1 className="text-4xl md:text-6xl font-bold mb-6 max-w-2xl">
             A Way To Make An Impact
           </h1>
