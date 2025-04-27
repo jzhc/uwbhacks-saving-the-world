@@ -8,6 +8,7 @@ import Profile from "./pages/Profile";
 import CreateAccount from "./pages/CreateAccount";
 import CreateInitiative from "./pages/CreateInitiative";
 import NotFound from "./pages/NotFound";
+import HANNI from "./pages/queens";
 
 
 export default function App() {
@@ -23,6 +24,10 @@ export default function App() {
         {/*individual user pages*/}
         <Route path="/profile" element={<Profile />} />
         <Route path="/u/:uid" element={<Profile />} />
+
+        
+        <Route path="/idols" element={<HANNI />} />
+
 
         {/* Bills list & detail */}
         <Route path="/initiative" element={<Navigate to="/dashboard" replace />} />

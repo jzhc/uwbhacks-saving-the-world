@@ -1,18 +1,14 @@
 // src/components/SignIn.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { auth, googleProvider } from "../../firebaseConfig";
-import {
-  signInWithPopup,
-  signOut,
-  onAuthStateChanged,
-} from "firebase/auth";
+import { signInWithPopup, signOut } from "firebase/auth";
 import { doesNotExist } from "../../apis/user";
-import { useNavigate } from "react-router-dom";
-
+import { useNavigate, Link } from "react-router-dom";
 import useFireAuth from "../hooks/useFireAuth";
 
+
 export default function SignIn() {
-  const [user, setUser] = useFireAuth();
+  const [user, initializing] = useFireAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -31,7 +27,6 @@ export default function SignIn() {
         navigate("/dashboard", { replace: true });
       }
     } catch (err) {
-      // ignore benign popup errors
       if (
         err.code !== "auth/cancelled-popup-request" &&
         err.code !== "auth/popup-closed-by-user"
@@ -47,27 +42,30 @@ export default function SignIn() {
     try {
       await signOut(auth);
       setError(null);
+      navigate("/signin", { replace: true });
     } catch (err) {
       console.error("Sign out error:", err);
       setError("Error signing out. Please try again.");
     }
   };
 
-  // If we have a current user, show Sign Out
+  if (initializing) {
+    return <p>Loading auth…</p>;
+  }
+
   if (user) {
     return (
-      <div>
-        <button
-          onClick={handleSignOut}
-          className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 cursor-pointer"
+      <div className="flex items-center gap-2">
+        <Link
+          to="/profile"
+          className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
         >
-          Sign Out
-        </button>
+          Profile
+        </Link>
       </div>
     );
   }
 
-  // Otherwise show Sign In
   return (
     <div>
       <button
