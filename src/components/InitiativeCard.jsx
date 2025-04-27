@@ -5,8 +5,10 @@ import { getTag } from "../../apis/tag";
 
 export default function InitiativeCard({ initiative }) {
     // console.log(initiative)
+
     const [user, setUser] = useState(null);
     const [tags, setTags] = useState([])
+
 
     useEffect(() => {
         async function fetchUser() {
@@ -15,6 +17,7 @@ export default function InitiativeCard({ initiative }) {
         }
         fetchUser();
       }, [initiative.ScrumMasterId]);
+
 
     useEffect(() => {
         async function fetchTags() {
