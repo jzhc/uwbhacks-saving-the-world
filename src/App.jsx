@@ -9,6 +9,7 @@ import CreateAccount from "./pages/CreateAccount";
 import CreateInitiative from "./pages/CreateInitiative";
 import NotFound from "./pages/NotFound";
 
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -18,7 +19,10 @@ export default function App() {
         {/* Main pages */}
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/home" element={<Home />} />
+
+        {/*individual user pages*/}
         <Route path="/profile" element={<Profile />} />
+        <Route path="/u/:uid" element={<Profile />} />
 
         {/* Bills list & detail */}
         <Route path="/initiative" element={<Navigate to="/dashboard" replace />} />
